@@ -11,6 +11,7 @@ const metrics = [
     {code:"B08201_004E", label:"Households with 2+ vehicles", category: "demographics"},
     {code:"B19013_001E", label:"Median household income", category: "demographics"},
     {code:"B19301_001E", label:"Per capita income", category: "demographics"},
+
     // Housing & Residential Investment
     {code:"B25001_001E", label:"Total housing units", category: "housing"},
     {code:"B25002_002E", label:"Occupied housing units", category: "housing"},
@@ -32,6 +33,7 @@ const metrics = [
     {code:"B25091_005E", label:"Median owner costs no mortgage", category: "housing"},
     {code:"B25070_007E", label:"Households rent >30% income", category: "housing"},
     {code:"B25091_009E", label:"Households owner cost >30% income", category: "housing"},
+
     // Employment & Workforce
     {code:"B23025_003E", label:"In labor force", category: "employment"},
     {code:"B23025_004E", label:"Employed", category: "employment"},
@@ -46,11 +48,13 @@ const metrics = [
     {code:"C24050_006E", label:"Natural resources/construction jobs", category: "employment"},
     {code:"C24050_007E", label:"Production/transportation jobs", category: "employment"},
     {code:"B17017_002E", label:"Households below poverty", category: "employment"},
+
     // Income & Poverty
-    {code:"B19025_001E", label:"Mean household income", category: "income"},
+    // {code:"B19025_001E", label:"Mean household income", category: "income"}, // REMOVED
     {code:"B20002_001E", label:"Median earnings (workers)", category: "income"},
+
     // Commuting & Transportation
-    {code:"B08303_001E", label:"Mean travel time to work", category: "commuting"},
+    // {code:"B08303_001E", label:"Mean travel time to work", category: "commuting"}, // REMOVED
     {code:"B08301_001E", label:"Total workers (commuting)", category: "commuting"},
     {code:"B08303_002E", label:"Workers commute <15 min", category: "commuting"},
     {code:"B08303_010E", label:"Workers commute 60+ min", category: "commuting"},
@@ -149,15 +153,10 @@ async function fetchZBP(zip, year) {
     };
 }
 
-// --- Format number ---
-// Special case for mean travel time (B08303_001E): divide by 10 and show as minutes with 1 decimal.
-function formatNumber(value, metricCode = "") {
+function formatNumber(value) {
     if (value === null || value === undefined || value === '' || value === '-') return 'N/A';
     const num = parseFloat(value);
     if (isNaN(num)) return 'N/A';
-    if (metricCode === "B08303_001E") {
-        return (num / 10).toFixed(1) + " min";
-    }
     return num % 1 === 0 ? num.toLocaleString() : num.toFixed(1);
 }
 
@@ -279,15 +278,15 @@ function renderAllCharts(primaryData, compareData) {
         id: 'incomeBarChart',
         title: 'Income Metrics',
         labels: [
-            "Median Household Income", "Mean Household Income",
+            "Median Household Income",
             "Per Capita Income", "Median Earnings (Workers)"
         ],
         primary: [
-            primaryData["B19013_001E"], primaryData["B19025_001E"],
+            primaryData["B19013_001E"],
             primaryData["B19301_001E"], primaryData["B20002_001E"]
         ],
         compare: compareData ? [
-            compareData["B19013_001E"], compareData["B19025_001E"],
+            compareData["B19013_001E"],
             compareData["B19301_001E"], compareData["B20002_001E"]
         ] : null
     });
@@ -304,14 +303,14 @@ function renderAllCharts(primaryData, compareData) {
         el: 'commuting-charts',
         id: 'commuteBarChart',
         title: 'Commuting Times',
-        labels: ['Mean Travel Time', '<15 min', '60+ min'],
+        labels: ['Total Workers', '<15 min', '60+ min'],
         primary: [
-            formatNumber(primaryData["B08303_001E"], "B08303_001E"),
+            primaryData["B08301_001E"],
             primaryData["B08303_002E"],
             primaryData["B08303_010E"]
         ],
         compare: compareData ? [
-            formatNumber(compareData["B08303_001E"], "B08303_001E"),
+            compareData["B08301_001E"],
             compareData["B08303_002E"],
             compareData["B08303_010E"]
         ] : null
@@ -329,10 +328,6 @@ function renderAllCharts(primaryData, compareData) {
 
 function sanitizeArray(arr) {
     return arr.map(x => {
-        if (typeof x === "string" && x.includes("min")) {
-            const n = parseFloat(x);
-            return isNaN(n) ? 0 : n;
-        }
         const val = Number(x);
         return isNaN(val) ? 0 : val;
     });
@@ -487,12 +482,12 @@ function createMetricRow(metric, primaryData, compareData) {
             else if (diff < 0) { cellClass = 'comparison-decrease'; deltaClass = 'delta-negative'; }
             comparisonCell = `
                 <td class="${cellClass}">
-                    <div class="metric-value">${formatNumber(compareValue, metric.code)}</div>
+                    <div class="metric-value">${formatNumber(compareValue)}</div>
                     <small class="${deltaClass}">${diff > 0 ? '+' : ''}${formatNumber(diff)} (${pctChange}%)</small>
                 </td>
             `;
         } else {
-            comparisonCell = `<td class="metric-value">${formatNumber(compareValue, metric.code)}</td>`;
+            comparisonCell = `<td class="metric-value">${formatNumber(compareValue)}</td>`;
         }
     } else {
         comparisonCell = '<td>-</td>';
@@ -501,7 +496,7 @@ function createMetricRow(metric, primaryData, compareData) {
     const comparisonDisplay = compareYear ? comparisonCell : '';
     row.innerHTML = `
         <td>${metric.label}</td>
-        <td class="metric-value">${formatNumber(primaryValue, metric.code)}</td>
+        <td class="metric-value">${formatNumber(primaryValue)}</td>
         ${comparisonDisplay}
     `;
     return row;
