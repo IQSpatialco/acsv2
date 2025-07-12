@@ -168,13 +168,17 @@ async function fetchZBP(zip, year) {
 }
 
 // --- Format number ---
-function formatNumber(value) {
+// Add a special case for "Mean travel time to work" to show as minutes with one decimal.
+function formatNumber(value, metricCode = "") {
     if (value === null || value === undefined || value === '' || value === '-') return 'N/A';
     const num = parseFloat(value);
     if (isNaN(num)) return 'N/A';
+    // Special formatting for mean travel time (B08303_001E)
+    if (metricCode === "B08303_001E") {
+        return num.toFixed(1) + " min";
+    }
     return num % 1 === 0 ? num.toLocaleString() : num.toFixed(1);
 }
-
 
 // --- Comparison header ---
 function updateComparisonHeader() {
@@ -329,11 +333,16 @@ function renderAllCharts(primaryData, compareData) {
         id: 'commuteBarChart',
         title: 'Commuting Times',
         labels: ['Mean Travel Time', '<15 min', '60+ min'],
+        // Pass the metric code for mean travel time so it's formatted as minutes
         primary: [
-            primaryData["B08303_001E"], primaryData["B08303_002E"], primaryData["B08303_010E"]
+            formatNumber(primaryData["B08303_001E"], "B08303_001E"),
+            primaryData["B08303_002E"],
+            primaryData["B08303_010E"]
         ],
         compare: compareData ? [
-            compareData["B08303_001E"], compareData["B08303_002E"], compareData["B08303_010E"]
+            formatNumber(compareData["B08303_001E"], "B08303_001E"),
+            compareData["B08303_002E"],
+            compareData["B08303_010E"]
         ] : null
     });
 
@@ -351,6 +360,11 @@ function renderAllCharts(primaryData, compareData) {
 // --- Chart helpers ---
 function sanitizeArray(arr) {
     return arr.map(x => {
+        // If already formatted as a string (e.g., "33.9 min"), try to parse the number part
+        if (typeof x === "string" && x.includes("min")) {
+            const n = parseFloat(x);
+            return isNaN(n) ? 0 : n;
+        }
         const val = Number(x);
         return isNaN(val) ? 0 : val;
     });
@@ -506,12 +520,12 @@ function createMetricRow(metric, primaryData, compareData) {
             else if (diff < 0) { cellClass = 'comparison-decrease'; deltaClass = 'delta-negative'; }
             comparisonCell = `
                 <td class="${cellClass}">
-                    <div class="metric-value">${formatNumber(compareValue)}</div>
+                    <div class="metric-value">${formatNumber(compareValue, metric.code)}</div>
                     <small class="${deltaClass}">${diff > 0 ? '+' : ''}${formatNumber(diff)} (${pctChange}%)</small>
                 </td>
             `;
         } else {
-            comparisonCell = `<td class="metric-value">${formatNumber(compareValue)}</td>`;
+            comparisonCell = `<td class="metric-value">${formatNumber(compareValue, metric.code)}</td>`;
         }
     } else {
         comparisonCell = '<td>-</td>';
@@ -520,7 +534,7 @@ function createMetricRow(metric, primaryData, compareData) {
     const comparisonDisplay = compareYear ? comparisonCell : '';
     row.innerHTML = `
         <td>${metric.label}</td>
-        <td class="metric-value">${formatNumber(primaryValue)}</td>
+        <td class="metric-value">${formatNumber(primaryValue, metric.code)}</td>
         ${comparisonDisplay}
     `;
     return row;
