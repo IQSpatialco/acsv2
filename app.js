@@ -1,4 +1,5 @@
-// app.js - Census Data Explorer (Detailed Table Variables Only, Batched Requests)
+# Create the corrected app.js file with all fixes applied
+app_js_content = '''// app.js - Census Data Explorer (Detailed Table Variables Only, Batched Requests)
 
 // 1. Metrics configuration (Detailed Table variables only)
 const metrics = [
@@ -21,8 +22,8 @@ const metrics = [
     {code:"B25077_001E", label:"Median value owner-occupied"},
     {code:"B25018_001E", label:"Median rooms per unit"},
     {code:"B25058_001E", label:"Median contract rent"},
-    {code:"B25088_002E", label:"Median owner costs w/ mortgage"},
-    {code:"B25088_005E", label:"Median owner costs no mortgage"},
+    {code:"B25091_002E", label:"Median owner costs w/ mortgage"}, // FIXED: was B25088_002E
+    {code:"B25091_005E", label:"Median owner costs no mortgage"}, // FIXED: was B25088_005E
     {code:"B25081_002E", label:"Households with mortgage"},
     {code:"B25081_003E", label:"Households without mortgage"},
     {code:"B25070_007E", label:"Households rent >30% income"},
@@ -237,7 +238,7 @@ async function handleLoad() {
     const statusMessages = document.getElementById('statusMessages');
     statusMessages.innerHTML = '';
     const zip = zipInput.value.trim();
-    if (!/^\d{5}$/.test(zip)) {
+    if (!/^\\d{5}$/.test(zip)) {
         showMessage('Please enter a valid 5-digit ZIP code', 'danger');
         return;
     }
@@ -318,4 +319,14 @@ function showMessage(message, type) {
     `;
     statusMessages.appendChild(alert);
     setTimeout(() => { if (alert.parentNode) alert.remove(); }, 5000);
-}
+}'''
+
+# Write the corrected app.js file
+with open('app.js', 'w') as f:
+    f.write(app_js_content)
+
+print("✅ Created corrected app.js file with the following fixes:")
+print("1. Fixed B25088_002E → B25091_002E (Median owner costs w/ mortgage)")
+print("2. Fixed B25088_005E → B25091_005E (Median owner costs no mortgage)")
+print("3. Added comments to highlight the corrections")
+print("\nFile saved as 'app.js' - ready to use!")
