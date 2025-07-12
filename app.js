@@ -1,62 +1,58 @@
-// app.js - Census Data Explorer (Netlify Function Proxy Version, Batched Requests)
+// app.js - Census Data Explorer (Detailed Table Variables Only, Batched Requests)
 
-// 1. Metrics configuration
+// 1. Metrics configuration (Detailed Table variables only)
 const metrics = [
-    // Housing/Residential Investment Metrics (ACS)
-    {code:"DP04_0001E", label:"Total housing units", source:"ACS"},
-    {code:"DP04_0002E", label:"Occupied housing units", source:"ACS"},
-    {code:"DP04_0003E", label:"Vacant housing units", source:"ACS"},
-    {code:"DP04_0046E", label:"Median rooms per unit", source:"ACS"},
-    {code:"DP04_0089E", label:"Median owner-occupied home value", source:"ACS"},
-    {code:"B25035_001E", label:"Median year structure built", source:"ACS"},
-    {code:"B25064_001E", label:"Median gross rent ($)", source:"ACS"},
-    {code:"B25077_001E", label:"Median value owner-occ ($)", source:"ACS"},
-    {code:"B25003_002E", label:"Owner-occupied housing units", source:"ACS"},
-    {code:"B25003_003E", label:"Renter-occupied housing units", source:"ACS"},
-    {code:"B25024_002E", label:"1-unit detached houses", source:"ACS"},
-    {code:"B25024_003E", label:"1-unit attached houses", source:"ACS"},
-    {code:"B25024_005E", label:"5-9 unit structures", source:"ACS"},
-    {code:"B25024_010E", label:"Mobile homes", source:"ACS"},
-    {code:"DP04_0134E", label:"Median gross rent", source:"ACS"},
-    {code:"DP04_0001PE", label:"Housing units (%)", source:"ACS"},
-    {code:"DP04_0002PE", label:"Occupied units (%)", source:"ACS"},
-    {code:"DP04_0003PE", label:"Vacancy rate (%)", source:"ACS"},
-    {code:"DP04_0088E", label:"Median owner costs w/mortgage", source:"ACS"},
-    {code:"DP04_0138PE", label:"Rent >30% income (%)", source:"ACS"},
-    {code:"B25090_002E", label:"Units with mortgage", source:"ACS"},
-    {code:"B25106_001E", label:"Owner cost burden >30%", source:"ACS"},
-    {code:"B25119_001E", label:"Median HH income by tenure", source:"ACS"},
-    {code:"B25113_001E", label:"Median rent (year moved)", source:"ACS"},
-    {code:"DP04_0136E", label:"Gross rent as % of income", source:"ACS"},
-    // Business/Employment Metrics (ACS + ZBP)
-    {code:"DP03_0001E", label:"Population 16+", source:"ACS"},
-    {code:"DP03_0004PE", label:"Labor force participation (%)", source:"ACS"},
-    {code:"DP03_0009PE", label:"Unemployment rate (%)", source:"ACS"},
-    {code:"DP03_0045E", label:"Self-employed (incorporated)", source:"ACS"},
-    {code:"DP03_0049E", label:"Self-employed (non-incorp)", source:"ACS"},
-    {code:"DP03_0049PE", label:"Self-employed share (%)", source:"ACS"},
-    {code:"DP03_0062E", label:"Median household income ($)", source:"ACS"},
-    {code:"DP03_0063E", label:"Mean household income ($)", source:"ACS"},
-    {code:"DP03_0064E", label:"Per-capita income ($)", source:"ACS"},
-    {code:"DP03_0088E", label:"Mean travel time to work (min)", source:"ACS"},
-    {code:"DP03_0128PE", label:"Workers: private wage (%)", source:"ACS"},
-    {code:"DP03_0129PE", label:"Workers: government (%)", source:"ACS"},
-    {code:"DP03_0130PE", label:"Workers: self-employed (%)", source:"ACS"},
-    {code:"DP03_0099PE", label:"Families below poverty (%)", source:"ACS"},
-    {code:"DP03_0119E", label:"Total firms", source:"ACS"},
-    {code:"DP03_0110PE", label:"Management/Business jobs (%)", source:"ACS"},
-    {code:"DP03_0118PE", label:"Service jobs (%)", source:"ACS"},
-    {code:"DP03_0112PE", label:"Sales/Office jobs (%)", source:"ACS"},
-    {code:"DP03_0116PE", label:"Production/Transport jobs (%)", source:"ACS"},
-    {code:"DP03_0114PE", label:"Natural resources jobs (%)", source:"ACS"},
-    {code:"DP03_0122PE", label:"Workers: commute <15 min (%)", source:"ACS"},
-    {code:"DP03_0005E", label:"Civilian labor force", source:"ACS"},
-    {code:"DP03_0007E", label:"Employed population", source:"ACS"},
-    {code:"DP03_0008E", label:"Unemployed population", source:"ACS"},
-    {code:"DP03_0051E", label:"Workers 16+ (commuting)", source:"ACS"},
-    {code:"ZBP_ESTAB", label:"Business establishments", source:"ZBP"},
-    {code:"ZBP_EMP", label:"Paid employees", source:"ZBP"},
-    {code:"ZBP_PAYANN", label:"Annual payroll ($000)", source:"ZBP"}
+    // Housing/Residential Investment Metrics
+    {code:"B25001_001E", label:"Total housing units"},
+    {code:"B25002_002E", label:"Occupied housing units"},
+    {code:"B25002_003E", label:"Vacant housing units"},
+    {code:"B25003_002E", label:"Owner-occupied housing units"},
+    {code:"B25003_003E", label:"Renter-occupied housing units"},
+    {code:"B25024_002E", label:"1-unit detached houses"},
+    {code:"B25024_003E", label:"1-unit attached houses"},
+    {code:"B25024_004E", label:"2 units"},
+    {code:"B25024_005E", label:"3 or 4 units"},
+    {code:"B25024_006E", label:"5-9 units"},
+    {code:"B25024_007E", label:"10-19 units"},
+    {code:"B25024_008E", label:"20+ units"},
+    {code:"B25024_010E", label:"Mobile homes"},
+    {code:"B25035_001E", label:"Median year structure built"},
+    {code:"B25064_001E", label:"Median gross rent"},
+    {code:"B25077_001E", label:"Median value owner-occupied"},
+    {code:"B25018_001E", label:"Median rooms per unit"},
+    {code:"B25058_001E", label:"Median contract rent"},
+    {code:"B25088_002E", label:"Median owner costs w/ mortgage"},
+    {code:"B25088_005E", label:"Median owner costs no mortgage"},
+    {code:"B25081_002E", label:"Households with mortgage"},
+    {code:"B25081_003E", label:"Households without mortgage"},
+    {code:"B25070_007E", label:"Households rent >30% income"},
+    {code:"B25091_009E", label:"Households owner cost >30% income"},
+    {code:"B19013_001E", label:"Median household income"},
+    // Business & Employment Metrics
+    {code:"B23001_001E", label:"Population 16+"},
+    {code:"B23025_003E", label:"In labor force"},
+    {code:"B23025_004E", label:"Employed"},
+    {code:"B23025_005E", label:"Unemployed"},
+    {code:"B23025_007E", label:"Not in labor force"},
+    {code:"B24080_006E", label:"Self-employed workers"},
+    {code:"B24080_003E", label:"Private wage/salary workers"},
+    {code:"B24080_005E", label:"Government workers"},
+    {code:"B08303_001E", label:"Mean travel time to work"},
+    {code:"B08006_001E", label:"Workers by means of transportation"},
+    {code:"C24050_003E", label:"Management/business/finance jobs"},
+    {code:"C24050_004E", label:"Service jobs"},
+    {code:"C24050_005E", label:"Sales/office jobs"},
+    {code:"C24050_006E", label:"Natural resources/construction jobs"},
+    {code:"C24050_007E", label:"Production/transportation jobs"},
+    {code:"B17017_002E", label:"Households below poverty"},
+    {code:"B19301_001E", label:"Per capita income"},
+    {code:"B19025_001E", label:"Mean household income"},
+    {code:"B20002_001E", label:"Median earnings (workers)"},
+    {code:"B08301_001E", label:"Total workers (commuting)"},
+    {code:"B08303_002E", label:"Workers commute <15 min"},
+    {code:"B08303_010E", label:"Workers commute 60+ min"},
+    {code:"B08201_002E", label:"Households with no vehicle"},
+    {code:"B08201_004E", label:"Households with 2+ vehicles"}
 ];
 
 // 2. Global variables
@@ -120,17 +116,16 @@ function autoLoadSample() {
 
 // 8. Fetch ACS data via Netlify function proxy (batched)
 async function fetchACS(zip, year) {
-    const coreVars = metrics.filter(m => m.source === 'ACS').map(m => m.code);
+    const codes = metrics.map(m => m.code);
     const maxVars = 50;
     let allResults = {};
 
-    for (let i = 0; i < coreVars.length; i += maxVars) {
-        const varsBatch = coreVars.slice(i, i + maxVars);
+    for (let i = 0; i < codes.length; i += maxVars) {
+        const varsBatch = codes.slice(i, i + maxVars);
         const varsString = varsBatch.join(',');
         const url = `/.netlify/functions/census?zip=${zip}&year=${year}&vars=${varsString}`;
         const response = await fetch(url);
         if (!response.ok) {
-            // Try to extract error message from JSON
             let errMsg = `Census API proxy returned ${response.status}`;
             try {
                 const errObj = await response.json();
@@ -140,7 +135,6 @@ async function fetchACS(zip, year) {
         }
         const data = await response.json();
         if (!data || data.length < 2) throw new Error('No data returned from Census API proxy');
-        // Convert to object keyed by variable code
         const headers = data[0], values = data[1];
         headers.forEach((header, idx) => {
             if (header !== 'zip code tabulation area') allResults[header] = values[idx];
