@@ -78,63 +78,81 @@
                 </div>
             </div>
 
-            <!-- Main Content -->
+            <!-- Main Content with Tabs -->
             <div class="col-lg-9 col-md-8 main-content">
-                <!-- Summary Cards -->
-                <div class="row mb-3" id="summary-cards"></div>
-
-                <!-- Charts Section -->
-                <div class="row mb-3" id="dashboard-charts">
-                    <div class="col-md-6 mb-3">
+                <!-- Dashboard Tabs -->
+                <ul class="nav nav-tabs mb-3" id="dashboardTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">
+                            Dashboard Table
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="charts-tab" data-bs-toggle="tab" data-bs-target="#charts" type="button" role="tab" aria-controls="charts" aria-selected="false">
+                            Charts
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="dashboardTabsContent">
+                    <!-- Dashboard Table Tab -->
+                    <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                        <!-- Summary Cards -->
+                        <div class="row mb-3" id="summary-cards"></div>
+                        <!-- Map Container -->
+                        <div class="card mb-3">
+                            <div class="card__body p-0">
+                                <div id="map" style="height: 400px; width: 100%;"></div>
+                            </div>
+                        </div>
+                        <!-- Dashboard Table -->
                         <div class="card">
-                            <div class="card__header"><strong>Housing Types</strong></div>
+                            <div class="card__header">
+                                <h5 class="m-0">Census Data Dashboard</h5>
+                                <small class="text-muted" id="zipDisplayInfo">Select a ZIP code to view data</small>
+                            </div>
                             <div class="card__body">
-                                <canvas id="housingBarChart" height="200"></canvas>
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="dataTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Metric</th>
+                                                <th id="primaryYearHeader">Primary Year</th>
+                                                <th id="comparisonHeader" style="display: none;">Comparison</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dataTableBody">
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">
+                                                    <em>No data loaded. Enter a ZIP code and click Load.</em>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="card">
-                            <div class="card__header"><strong>Occupancy Breakdown</strong></div>
-                            <div class="card__body">
-                                <canvas id="occupancyPieChart" height="200"></canvas>
+                    <!-- Charts Tab -->
+                    <div class="tab-pane fade" id="charts" role="tabpanel" aria-labelledby="charts-tab">
+                        <div class="row mb-3" id="dashboard-charts">
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card__header"><strong>Housing Types</strong></div>
+                                    <div class="card__body">
+                                        <canvas id="housingBarChart" height="200"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card__header"><strong>Occupancy Breakdown</strong></div>
+                                    <div class="card__body">
+                                        <canvas id="occupancyPieChart" height="200"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Map Container -->
-                <div class="card mb-3">
-                    <div class="card__body p-0">
-                        <div id="map" style="height: 400px; width: 100%;"></div>
-                    </div>
-                </div>
-
-                <!-- Dashboard Table -->
-                <div class="card">
-                    <div class="card__header">
-                        <h5 class="m-0">Census Data Dashboard</h5>
-                        <small class="text-muted" id="zipDisplayInfo">Select a ZIP code to view data</small>
-                    </div>
-                    <div class="card__body">
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="dataTable">
-                                <thead>
-                                    <tr>
-                                        <th>Metric</th>
-                                        <th id="primaryYearHeader">Primary Year</th>
-                                        <th id="comparisonHeader" style="display: none;">Comparison</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dataTableBody">
-                                    <tr>
-                                        <td colspan="3" class="text-center text-muted">
-                                            <em>No data loaded. Enter a ZIP code and click Load.</em>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <!-- You can add more chart cards here as needed -->
                     </div>
                 </div>
             </div>
