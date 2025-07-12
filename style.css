@@ -1,4 +1,4 @@
-/* High Contrast, Polished Theme */
+/* High Contrast, Polished Dashboard Theme */
 
 /* Layout and Backgrounds */
 body, .main-content, .sidebar, .card, .leaflet-popup-content-wrapper {
@@ -6,11 +6,64 @@ body, .main-content, .sidebar, .card, .leaflet-popup-content-wrapper {
   color: var(--color-text);
 }
 
-/* Headings and Brand */
 h1, h2, h3, h4, h5, h6, .navbar-brand {
   color: var(--color-primary);
-  text-shadow: none;
   font-weight: var(--font-weight-bold);
+  text-shadow: none;
+  letter-spacing: 0.01em;
+}
+
+/* Dashboard Summary Cards */
+#summary-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  margin-bottom: var(--space-16);
+}
+.summary-card {
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(33,128,141,0.08);
+  padding: var(--space-16);
+  min-width: 170px;
+  flex: 1 1 170px;
+  text-align: center;
+  margin-bottom: var(--space-8);
+  transition: box-shadow 0.2s;
+}
+.summary-card:hover {
+  box-shadow: 0 4px 16px rgba(33,128,141,0.13);
+  border-color: var(--color-primary-hover);
+}
+.summary-value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  margin-bottom: var(--space-4);
+}
+.summary-label {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+/* Chart containers */
+#dashboard-charts .card {
+  min-height: 300px;
+  margin-bottom: var(--space-16);
+}
+#dashboard-charts .card__header {
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  font-weight: var(--font-weight-bold);
+  padding: var(--space-12) var(--space-16);
+  border-bottom: 1px solid var(--color-primary-active);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+#dashboard-charts .card__body {
+  background: var(--color-surface);
+  padding: var(--space-16);
 }
 
 /* Table Styling */
@@ -133,10 +186,24 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
   border-radius: var(--radius-base);
 }
 
-/* Responsive: ensure table is readable */
+/* Responsive: ensure table and cards are readable */
+@media (max-width: 991px) {
+  #summary-cards {
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+  #dashboard-charts .col-md-6 {
+    width: 100%;
+    margin-bottom: var(--space-16);
+  }
+}
 @media (max-width: 768px) {
   .table th, .table td {
     font-size: var(--font-size-base);
     padding: var(--space-8) var(--space-4);
+  }
+  .summary-card {
+    min-width: 120px;
+    padding: var(--space-8);
   }
 }
