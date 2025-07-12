@@ -1,4 +1,4 @@
-// app.js - Census Data Explorer (Netlify Function Proxy Version)
+// app.js - Census Data Explorer (Netlify Function Proxy Version, Batched Requests)
 
 // 1. Metrics configuration
 const metrics = [
@@ -118,34 +118,38 @@ function autoLoadSample() {
     handleLoad();
 }
 
-// 8. Build variable string for ACS API
-function buildVarString() {
-    return metrics.filter(m => m.source === 'ACS').map(m => m.code).join(',');
-}
-
-// 9. Fetch ACS data via Netlify function proxy
+// 8. Fetch ACS data via Netlify function proxy (batched)
 async function fetchACS(zip, year) {
     const coreVars = metrics.filter(m => m.source === 'ACS').map(m => m.code);
-    const varsString = coreVars.join(',');
-    const url = `/.netlify/functions/census?zip=${zip}&year=${year}&vars=${varsString}`;
-    try {
+    const maxVars = 50;
+    let allResults = {};
+
+    for (let i = 0; i < coreVars.length; i += maxVars) {
+        const varsBatch = coreVars.slice(i, i + maxVars);
+        const varsString = varsBatch.join(',');
+        const url = `/.netlify/functions/census?zip=${zip}&year=${year}&vars=${varsString}`;
         const response = await fetch(url);
-        if (!response.ok) throw new Error(`Census API proxy returned ${response.status}`);
+        if (!response.ok) {
+            // Try to extract error message from JSON
+            let errMsg = `Census API proxy returned ${response.status}`;
+            try {
+                const errObj = await response.json();
+                if (errObj && errObj.error) errMsg = errObj.error;
+            } catch {}
+            throw new Error(errMsg);
+        }
         const data = await response.json();
         if (!data || data.length < 2) throw new Error('No data returned from Census API proxy');
         // Convert to object keyed by variable code
-        const headers = data[0], values = data[1], result = {};
+        const headers = data[0], values = data[1];
         headers.forEach((header, idx) => {
-            if (header !== 'zip code tabulation area') result[header] = values[idx];
+            if (header !== 'zip code tabulation area') allResults[header] = values[idx];
         });
-        return result;
-    } catch (error) {
-        console.error('ACS fetch error:', error);
-        throw error;
     }
+    return allResults;
 }
 
-// 10. Fetch ZBP data (mock/demo)
+// 9. Fetch ZBP data (mock/demo)
 async function fetchZBP(zip, year) {
     // Replace with a real proxy if you build one for ZBP
     return {
@@ -155,7 +159,7 @@ async function fetchZBP(zip, year) {
     };
 }
 
-// 11. Format number for display
+// 10. Format number for display
 function formatNumber(value) {
     if (value === null || value === undefined || value === '' || value === '-') return 'N/A';
     const num = parseFloat(value);
@@ -166,7 +170,7 @@ function formatNumber(value) {
     return num.toFixed(1);
 }
 
-// 12. Update comparison header
+// 11. Update comparison header
 function updateComparisonHeader() {
     const compareYear = document.getElementById('compareYear').value;
     const comparisonHeader = document.getElementById('comparisonHeader');
@@ -178,7 +182,7 @@ function updateComparisonHeader() {
     }
 }
 
-// 13. Render data table
+// 12. Render data table
 function renderTable(primaryData, compareData = null) {
     const tbody = document.getElementById('dataTableBody');
     tbody.innerHTML = '';
@@ -229,7 +233,7 @@ function createMetricRow(metric, primaryData, compareData) {
     return row;
 }
 
-// 14. Handle load button click
+// 13. Handle load button click
 async function handleLoad() {
     const zipInput = document.getElementById('zipInput');
     const primaryYear = document.getElementById('primaryYear').value;
@@ -282,7 +286,7 @@ async function handleLoad() {
     }
 }
 
-// 15. Update map with ZIP location
+// 14. Update map with ZIP location
 async function updateMap(zip) {
     try {
         const response = await fetch(`https://api.zippopotam.us/us/${zip}`);
@@ -306,7 +310,7 @@ async function updateMap(zip) {
     }
 }
 
-// 16. Show status message
+// 15. Show status message
 function showMessage(message, type) {
     const statusMessages = document.getElementById('statusMessages');
     const alertClass = type === 'success' ? 'alert-success' :
