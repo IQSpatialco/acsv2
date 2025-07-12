@@ -1,150 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Census Data Explorer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Census Data Explorer Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#" style="font-weight: var(--font-weight-bold);">
-                Census Data Explorer
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </nav>
-
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-3 col-md-4 sidebar">
-                <div class="card">
-                    <div class="card__body">
-                        <h5 class="mb-3">Data Controls</h5>
-                        <!-- ZIP Code Input -->
-                        <div class="form-group mb-3">
-                            <label for="zipInput" class="form-label">ZIP Code</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="zipInput" placeholder="Enter 5-digit ZIP" maxlength="5">
-                                <button class="btn btn--primary" type="button" id="loadBtn">Load</button>
-                            </div>
-                        </div>
-                        <!-- Primary Year Selection -->
-                        <div class="form-group mb-3">
-                            <label for="primaryYear" class="form-label">Primary Year</label>
-                            <select class="form-control" id="primaryYear">
-                                <option value="2023">2023 (2019-2023)</option>
-                                <option value="2022">2022 (2018-2022)</option>
-                                <option value="2021">2021 (2017-2021)</option>
-                                <option value="2020">2020 (2016-2020)</option>
-                                <option value="2019">2019 (2015-2019)</option>
-                                <option value="2018">2018 (2014-2018)</option>
-                                <option value="2017">2017 (2013-2017)</option>
-                            </select>
-                        </div>
-                        <!-- Comparison Year Selection -->
-                        <div class="form-group mb-3">
-                            <label for="compareYear" class="form-label">Comparison Year (Optional)</label>
-                            <select class="form-control" id="compareYear">
-                                <option value="">No comparison</option>
-                                <option value="2023">2023 (2019-2023)</option>
-                                <option value="2022">2022 (2018-2022)</option>
-                                <option value="2021">2021 (2017-2021)</option>
-                                <option value="2020">2020 (2016-2020)</option>
-                                <option value="2019">2019 (2015-2019)</option>
-                                <option value="2018">2018 (2014-2018)</option>
-                                <option value="2017">2017 (2013-2017)</option>
-                            </select>
-                        </div>
-                        <!-- Loading indicator -->
-                        <div id="loadingSpinner" class="text-center" style="display: none;">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <div class="mt-2">Loading census data...</div>
-                        </div>
-                        <!-- Status messages -->
-                        <div id="statusMessages"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content with Tabs -->
-            <div class="col-lg-9 col-md-8 main-content">
-                <!-- Dashboard Tabs -->
-                <ul class="nav nav-tabs mb-3" id="dashboardTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">
-                            Dashboard Table
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="charts-tab" data-bs-toggle="tab" data-bs-target="#charts" type="button" role="tab" aria-controls="charts" aria-selected="false">
-                            Charts
-                        </button>
-                    </li>
-                </ul>
-                <div class="tab-content" id="dashboardTabsContent">
-                    <!-- Dashboard Table Tab -->
-                    <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-                        <!-- Summary Cards -->
-                        <div class="row mb-3" id="summary-cards"></div>
-                        <!-- Map Container -->
-                        <div class="card mb-3">
-                            <div class="card__body p-0">
-                                <div id="map" style="height: 400px; width: 100%;"></div>
-                            </div>
-                        </div>
-                        <!-- Dashboard Table -->
-                        <div class="card">
-                            <div class="card__header">
-                                <h5 class="m-0">Census Data Dashboard</h5>
-                                <small class="text-muted" id="zipDisplayInfo">Select a ZIP code to view data</small>
-                            </div>
-                            <div class="card__body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped" id="dataTable">
-                                        <thead>
-                                            <tr>
-                                                <th>Metric</th>
-                                                <th id="primaryYearHeader">Primary Year</th>
-                                                <th id="comparisonHeader" style="display: none;">Comparison</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="dataTableBody">
-                                            <tr>
-                                                <td colspan="3" class="text-center text-muted">
-                                                    <em>No data loaded. Enter a ZIP code and click Load.</em>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Charts Tab -->
-                    <div class="tab-pane fade" id="charts" role="tabpanel" aria-labelledby="charts-tab">
-                        <div id="all-charts" class="row"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+      <a class="navbar-brand" href="#">Census Data Explorer</a>
     </div>
+  </nav>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- App JS -->
-    <script src="app.js"></script>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-lg-3 col-md-4 sidebar">
+        <div class="card">
+          <div class="card__body">
+            <h5 class="mb-3">Data Controls</h5>
+            <!-- ZIP Code Input -->
+            <div class="form-group mb-3">
+              <label for="zipInput" class="form-label">ZIP Code</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="zipInput" placeholder="Enter 5-digit ZIP" maxlength="5">
+                <button class="btn btn--primary" type="button" id="loadBtn">Load</button>
+              </div>
+            </div>
+            <!-- Primary Year Selection -->
+            <div class="form-group mb-3">
+              <label for="primaryYear" class="form-label">Primary Year</label>
+              <select class="form-control" id="primaryYear">
+                <option value="2023">2023 (2019-2023)</option>
+                <option value="2022">2022 (2018-2022)</option>
+                <option value="2021">2021 (2017-2021)</option>
+                <option value="2020">2020 (2016-2020)</option>
+                <option value="2019">2019 (2015-2019)</option>
+                <option value="2018">2018 (2014-2018)</option>
+                <option value="2017">2017 (2013-2017)</option>
+              </select>
+            </div>
+            <!-- Comparison Year Selection -->
+            <div class="form-group mb-3">
+              <label for="compareYear" class="form-label">Comparison Year (Optional)</label>
+              <select class="form-control" id="compareYear">
+                <option value="">No comparison</option>
+                <option value="2023">2023 (2019-2023)</option>
+                <option value="2022">2022 (2018-2022)</option>
+                <option value="2021">2021 (2017-2021)</option>
+                <option value="2020">2020 (2016-2020)</option>
+                <option value="2019">2019 (2015-2019)</option>
+                <option value="2018">2018 (2014-2018)</option>
+                <option value="2017">2017 (2013-2017)</option>
+              </select>
+            </div>
+            <!-- Loading indicator -->
+            <div id="loadingSpinner" class="text-center" style="display: none;">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <div class="mt-2">Loading census data...</div>
+            </div>
+            <!-- Status messages -->
+            <div id="statusMessages"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content with Tabs -->
+      <div class="col-lg-9 col-md-8 main-content">
+        <!-- Dashboard Tabs -->
+        <ul class="nav nav-tabs mb-3" id="dashboardTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab" aria-controls="dashboard" aria-selected="true">
+              Dashboard Table
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="charts-tab" data-bs-toggle="tab" data-bs-target="#charts" type="button" role="tab" aria-controls="charts" aria-selected="false">
+              Charts
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="dashboardTabsContent">
+          <!-- Dashboard Table Tab -->
+          <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+            <!-- Summary Cards -->
+            <div class="row mb-3" id="summary-cards"></div>
+            <!-- Map Container -->
+            <div class="card mb-3">
+              <div class="card__body p-0">
+                <div id="map" style="height: 400px; width: 100%;"></div>
+              </div>
+            </div>
+            <!-- Dashboard Table -->
+            <div class="card">
+              <div class="card__header">
+                <h5 class="m-0">Census Data Dashboard</h5>
+                <small class="text-muted" id="zipDisplayInfo">Select a ZIP code to view data</small>
+              </div>
+              <div class="card__body">
+                <div class="table-responsive">
+                  <table class="table table-striped" id="dataTable">
+                    <thead>
+                      <tr>
+                        <th>Metric</th>
+                        <th id="primaryYearHeader">Primary Year</th>
+                        <th id="comparisonHeader" style="display: none;">Comparison</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                      <tr>
+                        <td colspan="3" class="text-center text-muted">
+                          <em>No data loaded. Enter a ZIP code and click Load.</em>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Charts Tab -->
+          <div class="tab-pane fade" id="charts" role="tabpanel" aria-labelledby="charts-tab">
+            <!-- Demographics & Households -->
+            <h4 class="mt-4 mb-2">Demographics & Households</h4>
+            <div class="row mb-3" id="demographics-charts"></div>
+            <!-- Housing & Residential Investment -->
+            <h4 class="mt-4 mb-2">Housing & Residential Investment</h4>
+            <div class="row mb-3" id="housing-charts"></div>
+            <!-- Employment & Workforce -->
+            <h4 class="mt-4 mb-2">Employment & Workforce</h4>
+            <div class="row mb-3" id="employment-charts"></div>
+            <!-- Income & Poverty -->
+            <h4 class="mt-4 mb-2">Income & Poverty</h4>
+            <div class="row mb-3" id="income-charts"></div>
+            <!-- Commuting & Transportation -->
+            <h4 class="mt-4 mb-2">Commuting & Transportation</h4>
+            <div class="row mb-3" id="commuting-charts"></div>
+            <!-- Comparative & Trend Analysis -->
+            <h4 class="mt-4 mb-2">Comparative & Trend Analysis</h4>
+            <div class="row mb-3" id="trend-charts"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- App JS -->
+  <script src="app.js"></script>
 </body>
 </html>
