@@ -73,13 +73,25 @@ document.addEventListener('DOMContentLoaded', function() {
     autoLoadSample();
 });
 
-// --- Map ---
 function initializeMap() {
     map = L.map('map').setView([40.7128, -74.0060], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
+
+    // Wait for DOM and tab button to exist
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabBtn = document.querySelector('button[data-bs-target="#dashboard"]');
+        if (tabBtn) {
+            tabBtn.addEventListener('shown.bs.tab', function () {
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 200);
+            });
+        }
+    });
 }
+
 
 // --- Dropdowns ---
 function populateYearDropdowns() {
