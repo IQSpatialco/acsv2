@@ -1,4 +1,4 @@
-// app.js - Census Data Explorer with Charts and Summary Cards
+// app.js - Census Data Explorer (Dashboard Table + All-Variable Charts)
 
 // 1. Metrics configuration (Detailed Table variables only)
 const metrics = [
@@ -55,15 +55,9 @@ const metrics = [
     {code:"B08201_004E", label:"Households with 2+ vehicles"}
 ];
 
-// Chart.js chart instances
-let housingChartInstance, occupancyChartInstance;
+let map, currentMarker, currentZip = '';
 
-// 2. Global variables
-let map;
-let currentMarker;
-let currentZip = '';
-
-// 3. Initialize the application
+// Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     initializeMap();
     setupEventListeners();
@@ -71,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
     autoLoadSample();
 });
 
-// 4. Initialize Leaflet map
+// Initialize Leaflet map
 function initializeMap() {
     map = L.map('map').setView([40.7128, -74.0060], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -79,7 +73,7 @@ function initializeMap() {
     }).addTo(map);
 }
 
-// 5. Populate year dropdowns
+// Populate year dropdowns
 function populateYearDropdowns() {
     const primarySelect = document.getElementById('primaryYear');
     const compareSelect = document.getElementById('compareYear');
@@ -101,7 +95,7 @@ function populateYearDropdowns() {
     primarySelect.value = '2023';
 }
 
-// 6. Setup event listeners
+// Setup event listeners
 function setupEventListeners() {
     document.getElementById('loadBtn').addEventListener('click', handleLoad);
     document.getElementById('zipInput').addEventListener('keypress', function(e) {
@@ -110,14 +104,14 @@ function setupEventListeners() {
     document.getElementById('compareYear').addEventListener('change', updateComparisonHeader);
 }
 
-// 7. Auto-load a sample ZIP code
+// Auto-load a sample ZIP code
 function autoLoadSample() {
     document.getElementById('zipInput').value = '10001';
     document.getElementById('primaryYear').value = '2023';
     handleLoad();
 }
 
-// 8. Fetch ACS data via Netlify function proxy (batched)
+// Fetch ACS data via Netlify function proxy (batched)
 async function fetchACS(zip, year) {
     const codes = metrics.map(m => m.code);
     const maxVars = 50;
@@ -146,9 +140,8 @@ async function fetchACS(zip, year) {
     return allResults;
 }
 
-// 9. Fetch ZBP data (mock/demo)
+// Fetch ZBP data (mock/demo)
 async function fetchZBP(zip, year) {
-    // Replace with a real proxy if you build one for ZBP
     return {
         'ZBP_ESTAB': Math.floor(Math.random() * 500) + 50,
         'ZBP_EMP': Math.floor(Math.random() * 2000) + 200,
@@ -156,7 +149,7 @@ async function fetchZBP(zip, year) {
     };
 }
 
-// 10. Format number for display
+// Format number for display
 function formatNumber(value) {
     if (value === null || value === undefined || value === '' || value === '-') return 'N/A';
     const num = parseFloat(value);
@@ -167,7 +160,7 @@ function formatNumber(value) {
     return num.toFixed(1);
 }
 
-// 11. Update comparison header
+// Update comparison header
 function updateComparisonHeader() {
     const compareYear = document.getElementById('compareYear').value;
     const comparisonHeader = document.getElementById('comparisonHeader');
@@ -179,7 +172,7 @@ function updateComparisonHeader() {
     }
 }
 
-// 12. Render summary cards
+// Render summary cards
 function renderSummaryCards(data) {
     const summaryCards = [
         { label: "Total Housing Units", value: data["B25001_001E"] },
@@ -195,60 +188,50 @@ function renderSummaryCards(data) {
     ).join('');
 }
 
-// 13. Render housing bar chart
-function renderHousingBarChart(data) {
-    const ctx = document.getElementById('housingBarChart').getContext('2d');
-    if (housingChartInstance) housingChartInstance.destroy();
-    housingChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [
-                "1-unit detached", "1-unit attached", "2 units", "3-4 units",
-                "5-9 units", "10-19 units", "20+ units", "Mobile homes"
-            ],
-            datasets: [{
-                label: 'Units',
-                data: [
-                    data["B25024_002E"], data["B25024_003E"], data["B25024_004E"],
-                    data["B25024_005E"], data["B25024_006E"], data["B25024_007E"],
-                    data["B25024_008E"], data["B25024_010E"]
-                ].map(Number),
-                backgroundColor: 'rgba(33,128,141,0.7)'
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
-        }
+// Render all variable charts (one per variable)
+function renderAllCharts(data) {
+    const chartContainer = document.getElementById('all-charts');
+    chartContainer.innerHTML = '';
+    metrics.forEach(metric => {
+        const canvasId = `chart-${metric.code}`;
+        chartContainer.innerHTML += `
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card__header"><strong>${metric.label}</strong></div>
+                    <div class="card__body">
+                        <canvas id="${canvasId}" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+        `;
+        setTimeout(() => {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [metric.label],
+                    datasets: [{
+                        label: metric.label,
+                        data: [Number(data[metric.code])],
+                        backgroundColor: 'rgba(33,128,141,0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }, 0);
     });
 }
 
-// 14. Render occupancy pie chart
-function renderOccupancyPieChart(data) {
-    const ctx = document.getElementById('occupancyPieChart').getContext('2d');
-    if (occupancyChartInstance) occupancyChartInstance.destroy();
-    occupancyChartInstance = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ["Owner-Occupied", "Renter-Occupied"],
-            datasets: [{
-                data: [data["B25003_002E"], data["B25003_003E"]].map(Number),
-                backgroundColor: ['#21808d', '#a84b2f']
-            }]
-        },
-        options: { responsive: true }
-    });
-}
-
-// 15. Render data table
+// Render data table
 function renderTable(primaryData, compareData = null) {
     const tbody = document.getElementById('dataTableBody');
     tbody.innerHTML = '';
-    // Housing section
     tbody.appendChild(createCategoryRow('Housing & Residential Investment'));
     metrics.slice(0, 25).forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
-    // Business section
     tbody.appendChild(createCategoryRow('Business & Employment'));
     metrics.slice(25).forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
 }
@@ -292,7 +275,7 @@ function createMetricRow(metric, primaryData, compareData) {
     return row;
 }
 
-// 16. Handle load button click
+// Handle load button click
 async function handleLoad() {
     const zipInput = document.getElementById('zipInput');
     const primaryYear = document.getElementById('primaryYear').value;
@@ -331,9 +314,8 @@ async function handleLoad() {
             }
         }
         renderSummaryCards(primaryData);
-        renderHousingBarChart(primaryData);
-        renderOccupancyPieChart(primaryData);
         renderTable(primaryData, compareData);
+        renderAllCharts(primaryData);
         updateComparisonHeader();
         document.getElementById('zipDisplayInfo').textContent = `ZIP Code: ${zip}`;
         document.getElementById('primaryYearHeader').textContent = `${primaryYear}`;
@@ -348,7 +330,7 @@ async function handleLoad() {
     }
 }
 
-// 17. Update map with ZIP location
+// Update map with ZIP location
 async function updateMap(zip) {
     try {
         const response = await fetch(`https://api.zippopotam.us/us/${zip}`);
@@ -372,7 +354,7 @@ async function updateMap(zip) {
     }
 }
 
-// 18. Show status message
+// Show status message
 function showMessage(message, type) {
     const statusMessages = document.getElementById('statusMessages');
     const alertClass = type === 'success' ? 'alert-success' :
