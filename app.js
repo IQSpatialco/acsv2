@@ -1,63 +1,71 @@
-// app.js - Census Data Explorer (Dashboard Table + All-Variable Charts)
+// app.js - Census Data Explorer: Categorized, Comparison-Ready Charts
 
 // 1. Metrics configuration (Detailed Table variables only)
 const metrics = [
-    // Housing/Residential Investment Metrics
-    {code:"B25001_001E", label:"Total housing units"},
-    {code:"B25002_002E", label:"Occupied housing units"},
-    {code:"B25002_003E", label:"Vacant housing units"},
-    {code:"B25003_002E", label:"Owner-occupied housing units"},
-    {code:"B25003_003E", label:"Renter-occupied housing units"},
-    {code:"B25024_002E", label:"1-unit detached houses"},
-    {code:"B25024_003E", label:"1-unit attached houses"},
-    {code:"B25024_004E", label:"2 units"},
-    {code:"B25024_005E", label:"3 or 4 units"},
-    {code:"B25024_006E", label:"5-9 units"},
-    {code:"B25024_007E", label:"10-19 units"},
-    {code:"B25024_008E", label:"20+ units"},
-    {code:"B25024_010E", label:"Mobile homes"},
-    {code:"B25035_001E", label:"Median year structure built"},
-    {code:"B25064_001E", label:"Median gross rent"},
-    {code:"B25077_001E", label:"Median value owner-occupied"},
-    {code:"B25018_001E", label:"Median rooms per unit"},
-    {code:"B25058_001E", label:"Median contract rent"},
-    {code:"B25091_002E", label:"Median owner costs w/ mortgage"},
-    {code:"B25091_005E", label:"Median owner costs no mortgage"},
-    {code:"B25081_002E", label:"Households with mortgage"},
-    {code:"B25081_003E", label:"Households without mortgage"},
-    {code:"B25070_007E", label:"Households rent >30% income"},
-    {code:"B25091_009E", label:"Households owner cost >30% income"},
-    {code:"B19013_001E", label:"Median household income"},
-    // Business & Employment Metrics
-    {code:"B23001_001E", label:"Population 16+"},
-    {code:"B23025_003E", label:"In labor force"},
-    {code:"B23025_004E", label:"Employed"},
-    {code:"B23025_005E", label:"Unemployed"},
-    {code:"B23025_007E", label:"Not in labor force"},
-    {code:"B24080_006E", label:"Self-employed workers"},
-    {code:"B24080_003E", label:"Private wage/salary workers"},
-    {code:"B24080_005E", label:"Government workers"},
-    {code:"B08303_001E", label:"Mean travel time to work"},
-    {code:"B08006_001E", label:"Workers by means of transportation"},
-    {code:"C24050_003E", label:"Management/business/finance jobs"},
-    {code:"C24050_004E", label:"Service jobs"},
-    {code:"C24050_005E", label:"Sales/office jobs"},
-    {code:"C24050_006E", label:"Natural resources/construction jobs"},
-    {code:"C24050_007E", label:"Production/transportation jobs"},
-    {code:"B17017_002E", label:"Households below poverty"},
-    {code:"B19301_001E", label:"Per capita income"},
-    {code:"B19025_001E", label:"Mean household income"},
-    {code:"B20002_001E", label:"Median earnings (workers)"},
-    {code:"B08301_001E", label:"Total workers (commuting)"},
-    {code:"B08303_002E", label:"Workers commute <15 min"},
-    {code:"B08303_010E", label:"Workers commute 60+ min"},
-    {code:"B08201_002E", label:"Households with no vehicle"},
-    {code:"B08201_004E", label:"Households with 2+ vehicles"}
+    // Demographics & Households
+    {code:"B23001_001E", label:"Population 16+", category: "demographics"},
+    {code:"B25003_002E", label:"Owner-occupied housing units", category: "demographics"},
+    {code:"B25003_003E", label:"Renter-occupied housing units", category: "demographics"},
+    {code:"B25081_002E", label:"Households with mortgage", category: "demographics"},
+    {code:"B25081_003E", label:"Households without mortgage", category: "demographics"},
+    {code:"B08201_002E", label:"Households with no vehicle", category: "demographics"},
+    {code:"B08201_004E", label:"Households with 2+ vehicles", category: "demographics"},
+    {code:"B19013_001E", label:"Median household income", category: "demographics"},
+    {code:"B19301_001E", label:"Per capita income", category: "demographics"},
+
+    // Housing & Residential Investment
+    {code:"B25001_001E", label:"Total housing units", category: "housing"},
+    {code:"B25002_002E", label:"Occupied housing units", category: "housing"},
+    {code:"B25002_003E", label:"Vacant housing units", category: "housing"},
+    {code:"B25024_002E", label:"1-unit detached houses", category: "housing"},
+    {code:"B25024_003E", label:"1-unit attached houses", category: "housing"},
+    {code:"B25024_004E", label:"2 units", category: "housing"},
+    {code:"B25024_005E", label:"3 or 4 units", category: "housing"},
+    {code:"B25024_006E", label:"5-9 units", category: "housing"},
+    {code:"B25024_007E", label:"10-19 units", category: "housing"},
+    {code:"B25024_008E", label:"20+ units", category: "housing"},
+    {code:"B25024_010E", label:"Mobile homes", category: "housing"},
+    {code:"B25035_001E", label:"Median year structure built", category: "housing"},
+    {code:"B25064_001E", label:"Median gross rent", category: "housing"},
+    {code:"B25077_001E", label:"Median value owner-occupied", category: "housing"},
+    {code:"B25018_001E", label:"Median rooms per unit", category: "housing"},
+    {code:"B25058_001E", label:"Median contract rent", category: "housing"},
+    {code:"B25091_002E", label:"Median owner costs w/ mortgage", category: "housing"},
+    {code:"B25091_005E", label:"Median owner costs no mortgage", category: "housing"},
+    {code:"B25070_007E", label:"Households rent >30% income", category: "housing"},
+    {code:"B25091_009E", label:"Households owner cost >30% income", category: "housing"},
+
+    // Employment & Workforce
+    {code:"B23025_003E", label:"In labor force", category: "employment"},
+    {code:"B23025_004E", label:"Employed", category: "employment"},
+    {code:"B23025_005E", label:"Unemployed", category: "employment"},
+    {code:"B23025_007E", label:"Not in labor force", category: "employment"},
+    {code:"B24080_006E", label:"Self-employed workers", category: "employment"},
+    {code:"B24080_003E", label:"Private wage/salary workers", category: "employment"},
+    {code:"B24080_005E", label:"Government workers", category: "employment"},
+    {code:"C24050_003E", label:"Management/business/finance jobs", category: "employment"},
+    {code:"C24050_004E", label:"Service jobs", category: "employment"},
+    {code:"C24050_005E", label:"Sales/office jobs", category: "employment"},
+    {code:"C24050_006E", label:"Natural resources/construction jobs", category: "employment"},
+    {code:"C24050_007E", label:"Production/transportation jobs", category: "employment"},
+    {code:"B17017_002E", label:"Households below poverty", category: "employment"},
+
+    // Income & Poverty
+    {code:"B19025_001E", label:"Mean household income", category: "income"},
+    {code:"B20002_001E", label:"Median earnings (workers)", category: "income"},
+
+    // Commuting & Transportation
+    {code:"B08303_001E", label:"Mean travel time to work", category: "commuting"},
+    {code:"B08301_001E", label:"Total workers (commuting)", category: "commuting"},
+    {code:"B08303_002E", label:"Workers commute <15 min", category: "commuting"},
+    {code:"B08303_010E", label:"Workers commute 60+ min", category: "commuting"},
+    {code:"B08006_001E", label:"Workers by means of transportation", category: "commuting"}
 ];
 
+// --- Global variables ---
 let map, currentMarker, currentZip = '';
 
-// Initialize the application
+// --- Initialization ---
 document.addEventListener('DOMContentLoaded', function() {
     initializeMap();
     setupEventListeners();
@@ -65,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     autoLoadSample();
 });
 
-// Initialize Leaflet map
+// --- Map ---
 function initializeMap() {
     map = L.map('map').setView([40.7128, -74.0060], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -73,7 +81,7 @@ function initializeMap() {
     }).addTo(map);
 }
 
-// Populate year dropdowns
+// --- Dropdowns ---
 function populateYearDropdowns() {
     const primarySelect = document.getElementById('primaryYear');
     const compareSelect = document.getElementById('compareYear');
@@ -95,7 +103,7 @@ function populateYearDropdowns() {
     primarySelect.value = '2023';
 }
 
-// Setup event listeners
+// --- Event listeners ---
 function setupEventListeners() {
     document.getElementById('loadBtn').addEventListener('click', handleLoad);
     document.getElementById('zipInput').addEventListener('keypress', function(e) {
@@ -104,14 +112,14 @@ function setupEventListeners() {
     document.getElementById('compareYear').addEventListener('change', updateComparisonHeader);
 }
 
-// Auto-load a sample ZIP code
+// --- Sample ZIP ---
 function autoLoadSample() {
     document.getElementById('zipInput').value = '10001';
     document.getElementById('primaryYear').value = '2023';
     handleLoad();
 }
 
-// Fetch ACS data via Netlify function proxy (batched)
+// --- Data Fetch ---
 async function fetchACS(zip, year) {
     const codes = metrics.map(m => m.code);
     const maxVars = 50;
@@ -140,7 +148,6 @@ async function fetchACS(zip, year) {
     return allResults;
 }
 
-// Fetch ZBP data (mock/demo)
 async function fetchZBP(zip, year) {
     return {
         'ZBP_ESTAB': Math.floor(Math.random() * 500) + 50,
@@ -149,7 +156,7 @@ async function fetchZBP(zip, year) {
     };
 }
 
-// Format number for display
+// --- Format number ---
 function formatNumber(value) {
     if (value === null || value === undefined || value === '' || value === '-') return 'N/A';
     const num = parseFloat(value);
@@ -160,7 +167,7 @@ function formatNumber(value) {
     return num.toFixed(1);
 }
 
-// Update comparison header
+// --- Comparison header ---
 function updateComparisonHeader() {
     const compareYear = document.getElementById('compareYear').value;
     const comparisonHeader = document.getElementById('comparisonHeader');
@@ -172,7 +179,7 @@ function updateComparisonHeader() {
     }
 }
 
-// Render summary cards
+// --- Summary cards ---
 function renderSummaryCards(data) {
     const summaryCards = [
         { label: "Total Housing Units", value: data["B25001_001E"] },
@@ -188,52 +195,278 @@ function renderSummaryCards(data) {
     ).join('');
 }
 
-// Render all variable charts (one per variable)
-function renderAllCharts(data) {
-    const chartContainer = document.getElementById('all-charts');
-    chartContainer.innerHTML = '';
-    metrics.forEach(metric => {
-        const canvasId = `chart-${metric.code}`;
-        chartContainer.innerHTML += `
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card__header"><strong>${metric.label}</strong></div>
-                    <div class="card__body">
-                        <canvas id="${canvasId}" height="120"></canvas>
-                    </div>
-                </div>
-            </div>
-        `;
-        setTimeout(() => {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: [metric.label],
-                    datasets: [{
-                        label: metric.label,
-                        data: [Number(data[metric.code])],
-                        backgroundColor: 'rgba(33,128,141,0.7)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }, 0);
+// --- Render categorized charts with comparison support ---
+function renderAllCharts(primaryData, compareData) {
+    // Clear old charts
+    ['demographics-charts','housing-charts','employment-charts','income-charts','commuting-charts','trend-charts'].forEach(id => {
+        document.getElementById(id).innerHTML = '';
+    });
+
+    // Demographics & Households
+    renderPieChart({
+        el: 'demographics-charts',
+        id: 'occupancyPieChart',
+        title: 'Owner vs. Renter-Occupied Units',
+        labels: ['Owner-Occupied', 'Renter-Occupied'],
+        primary: [primaryData["B25003_002E"], primaryData["B25003_003E"]],
+        compare: compareData ? [compareData["B25003_002E"], compareData["B25003_003E"]] : null
+    });
+    renderBarChart({
+        el: 'demographics-charts',
+        id: 'mortgageBarChart',
+        title: 'Households With/Without Mortgage',
+        labels: ['With Mortgage', 'Without Mortgage'],
+        primary: [primaryData["B25081_002E"], primaryData["B25081_003E"]],
+        compare: compareData ? [compareData["B25081_002E"], compareData["B25081_003E"]] : null
+    });
+    renderBarChart({
+        el: 'demographics-charts',
+        id: 'vehicleBarChart',
+        title: 'Households by Vehicle Access',
+        labels: ['No Vehicle', '2+ Vehicles'],
+        primary: [primaryData["B08201_002E"], primaryData["B08201_004E"]],
+        compare: compareData ? [compareData["B08201_002E"], compareData["B08201_004E"]] : null
+    });
+
+    // Housing & Residential Investment
+    renderBarChart({
+        el: 'housing-charts',
+        id: 'housingTypeBarChart',
+        title: 'Housing Unit Types',
+        labels: [
+            "1-unit detached", "1-unit attached", "2 units", "3-4 units",
+            "5-9 units", "10-19 units", "20+ units", "Mobile homes"
+        ],
+        primary: [
+            primaryData["B25024_002E"], primaryData["B25024_003E"], primaryData["B25024_004E"],
+            primaryData["B25024_005E"], primaryData["B25024_006E"], primaryData["B25024_007E"],
+            primaryData["B25024_008E"], primaryData["B25024_010E"]
+        ],
+        compare: compareData ? [
+            compareData["B25024_002E"], compareData["B25024_003E"], compareData["B25024_004E"],
+            compareData["B25024_005E"], compareData["B25024_006E"], compareData["B25024_007E"],
+            compareData["B25024_008E"], compareData["B25024_010E"]
+        ] : null
+    });
+    renderBarChart({
+        el: 'housing-charts',
+        id: 'occupancyBarChart',
+        title: 'Occupied vs. Vacant Units',
+        labels: ['Occupied', 'Vacant'],
+        primary: [primaryData["B25002_002E"], primaryData["B25002_003E"]],
+        compare: compareData ? [compareData["B25002_002E"], compareData["B25002_003E"]] : null
+    });
+
+    // Employment & Workforce
+    renderBarChart({
+        el: 'employment-charts',
+        id: 'laborBarChart',
+        title: 'Labor Force Status',
+        labels: ['In Labor Force', 'Employed', 'Unemployed', 'Not in Labor Force'],
+        primary: [
+            primaryData["B23025_003E"], primaryData["B23025_004E"],
+            primaryData["B23025_005E"], primaryData["B23025_007E"]
+        ],
+        compare: compareData ? [
+            compareData["B23025_003E"], compareData["B23025_004E"],
+            compareData["B23025_005E"], compareData["B23025_007E"]
+        ] : null
+    });
+    renderBarChart({
+        el: 'employment-charts',
+        id: 'sectorBarChart',
+        title: 'Employment by Sector',
+        labels: [
+            "Private Wage/Salary", "Government", "Self-Employed"
+        ],
+        primary: [
+            primaryData["B24080_003E"], primaryData["B24080_005E"], primaryData["B24080_006E"]
+        ],
+        compare: compareData ? [
+            compareData["B24080_003E"], compareData["B24080_005E"], compareData["B24080_006E"]
+        ] : null
+    });
+
+    // Income & Poverty
+    renderBarChart({
+        el: 'income-charts',
+        id: 'incomeBarChart',
+        title: 'Income Metrics',
+        labels: [
+            "Median Household Income", "Mean Household Income",
+            "Per Capita Income", "Median Earnings (Workers)"
+        ],
+        primary: [
+            primaryData["B19013_001E"], primaryData["B19025_001E"],
+            primaryData["B19301_001E"], primaryData["B20002_001E"]
+        ],
+        compare: compareData ? [
+            compareData["B19013_001E"], compareData["B19025_001E"],
+            compareData["B19301_001E"], compareData["B20002_001E"]
+        ] : null
+    });
+    renderBarChart({
+        el: 'income-charts',
+        id: 'povertyBarChart',
+        title: 'Households Below Poverty',
+        labels: ['Below Poverty'],
+        primary: [primaryData["B17017_002E"]],
+        compare: compareData ? [compareData["B17017_002E"]] : null
+    });
+
+    // Commuting & Transportation
+    renderBarChart({
+        el: 'commuting-charts',
+        id: 'commuteBarChart',
+        title: 'Commuting Times',
+        labels: ['Mean Travel Time', '<15 min', '60+ min'],
+        primary: [
+            primaryData["B08303_001E"], primaryData["B08303_002E"], primaryData["B08303_010E"]
+        ],
+        compare: compareData ? [
+            compareData["B08303_001E"], compareData["B08303_002E"], compareData["B08303_010E"]
+        ] : null
+    });
+
+    // Comparative & Trend Analysis (example: Median Household Income)
+    renderLineChart({
+        el: 'trend-charts',
+        id: 'incomeTrendChart',
+        title: 'Median Household Income: Year Comparison',
+        labels: ['Primary', 'Comparison'],
+        primary: [primaryData["B19013_001E"]],
+        compare: compareData ? [compareData["B19013_001E"]] : null
     });
 }
 
-// Render data table
+// --- Chart helpers ---
+function renderBarChart({el, id, title, labels, primary, compare}) {
+    const container = document.getElementById(el);
+    const card = document.createElement('div');
+    card.className = 'col-md-6 mb-3';
+    card.innerHTML = `
+        <div class="card">
+            <div class="card__header"><strong>${title}</strong></div>
+            <div class="card__body">
+                <canvas id="${id}" height="180"></canvas>
+            </div>
+        </div>`;
+    container.appendChild(card);
+    const ctx = document.getElementById(id).getContext('2d');
+    const datasets = [{
+        label: 'Primary Year',
+        data: primary.map(Number),
+        backgroundColor: 'rgba(33,128,141,0.7)'
+    }];
+    if (compare) {
+        datasets.push({
+            label: 'Comparison Year',
+            data: compare.map(Number),
+            backgroundColor: 'rgba(168,75,47,0.6)'
+        });
+    }
+    new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+function renderPieChart({el, id, title, labels, primary, compare}) {
+    const container = document.getElementById(el);
+    const card = document.createElement('div');
+    card.className = 'col-md-6 mb-3';
+    card.innerHTML = `
+        <div class="card">
+            <div class="card__header"><strong>${title}</strong></div>
+            <div class="card__body">
+                <canvas id="${id}" height="180"></canvas>
+            </div>
+        </div>`;
+    container.appendChild(card);
+    const ctx = document.getElementById(id).getContext('2d');
+    const datasets = [{
+        label: 'Primary Year',
+        data: primary.map(Number),
+        backgroundColor: ['#21808d', '#a84b2f', '#e6c229', '#7b3f00']
+    }];
+    if (compare) {
+        datasets.push({
+            label: 'Comparison Year',
+            data: compare.map(Number),
+            backgroundColor: ['#7b3f00', '#e6c229', '#21808d', '#a84b2f'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        });
+    }
+    new Chart(ctx, {
+        type: 'pie',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true } }
+        }
+    });
+}
+
+function renderLineChart({el, id, title, labels, primary, compare}) {
+    const container = document.getElementById(el);
+    const card = document.createElement('div');
+    card.className = 'col-md-6 mb-3';
+    card.innerHTML = `
+        <div class="card">
+            <div class="card__header"><strong>${title}</strong></div>
+            <div class="card__body">
+                <canvas id="${id}" height="180"></canvas>
+            </div>
+        </div>`;
+    container.appendChild(card);
+    const ctx = document.getElementById(id).getContext('2d');
+    const datasets = [{
+        label: 'Primary Year',
+        data: primary.map(Number),
+        borderColor: '#21808d',
+        backgroundColor: 'rgba(33,128,141,0.2)',
+        tension: 0.3
+    }];
+    if (compare) {
+        datasets.push({
+            label: 'Comparison Year',
+            data: compare.map(Number),
+            borderColor: '#a84b2f',
+            backgroundColor: 'rgba(168,75,47,0.2)',
+            tension: 0.3
+        });
+    }
+    new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+// --- Table rendering (unchanged from previous) ---
 function renderTable(primaryData, compareData = null) {
     const tbody = document.getElementById('dataTableBody');
     tbody.innerHTML = '';
+    tbody.appendChild(createCategoryRow('Demographics & Households'));
+    metrics.filter(m => m.category === "demographics").forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
     tbody.appendChild(createCategoryRow('Housing & Residential Investment'));
-    metrics.slice(0, 25).forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
-    tbody.appendChild(createCategoryRow('Business & Employment'));
-    metrics.slice(25).forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
+    metrics.filter(m => m.category === "housing").forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
+    tbody.appendChild(createCategoryRow('Employment & Workforce'));
+    metrics.filter(m => m.category === "employment").forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
+    tbody.appendChild(createCategoryRow('Income & Poverty'));
+    metrics.filter(m => m.category === "income").forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
+    tbody.appendChild(createCategoryRow('Commuting & Transportation'));
+    metrics.filter(m => m.category === "commuting").forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
 }
 function createCategoryRow(label) {
     const row = document.createElement('tr');
@@ -275,7 +508,7 @@ function createMetricRow(metric, primaryData, compareData) {
     return row;
 }
 
-// Handle load button click
+// --- Main load handler ---
 async function handleLoad() {
     const zipInput = document.getElementById('zipInput');
     const primaryYear = document.getElementById('primaryYear').value;
@@ -315,7 +548,7 @@ async function handleLoad() {
         }
         renderSummaryCards(primaryData);
         renderTable(primaryData, compareData);
-        renderAllCharts(primaryData);
+        renderAllCharts(primaryData, compareData);
         updateComparisonHeader();
         document.getElementById('zipDisplayInfo').textContent = `ZIP Code: ${zip}`;
         document.getElementById('primaryYearHeader').textContent = `${primaryYear}`;
@@ -330,7 +563,7 @@ async function handleLoad() {
     }
 }
 
-// Update map with ZIP location
+// --- Map update ---
 async function updateMap(zip) {
     try {
         const response = await fetch(`https://api.zippopotam.us/us/${zip}`);
@@ -354,7 +587,7 @@ async function updateMap(zip) {
     }
 }
 
-// Show status message
+// --- Status messages ---
 function showMessage(message, type) {
     const statusMessages = document.getElementById('statusMessages');
     const alertClass = type === 'success' ? 'alert-success' :
