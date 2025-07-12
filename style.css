@@ -1,131 +1,136 @@
-/* High Contrast Enhancements */
+/* High Contrast, Polished Theme */
 
-/* Stronger text/background contrast */
+/* Layout and Backgrounds */
 body, .main-content, .sidebar, .card, .leaflet-popup-content-wrapper {
-  background-color: var(--color-background) !important;
-  color: var(--color-text) !important;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
+/* Headings and Brand */
 h1, h2, h3, h4, h5, h6, .navbar-brand {
-  color: var(--color-text) !important;
-  text-shadow: 0 1px 0 #fff, 0 0 2px #000, 0 0 1px #000;
+  color: var(--color-primary);
+  text-shadow: none;
+  font-weight: var(--font-weight-bold);
 }
 
-/* Table: stronger row separation and header contrast */
+/* Table Styling */
 .table th, .metric-category {
-  background-color: var(--color-primary) !important;
-  color: var(--color-btn-primary-text) !important;
-  border-bottom: 2px solid var(--color-border) !important;
+  background-color: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  border-bottom: 2px solid var(--color-border);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.03em;
 }
 
 .table td {
-  background-color: var(--color-surface) !important;
-  color: var(--color-text) !important;
-  border-bottom: 1.5px solid var(--color-border) !important;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
 }
 
-/* Table row hover: strong highlight */
+/* Table row hover: subtle highlight */
 .table tbody tr:hover {
-  background-color: var(--color-primary-hover) !important;
-  color: var(--color-btn-primary-text) !important;
+  background-color: var(--color-secondary-hover);
+  color: var(--color-text);
 }
 
-/* Focus ring for all interactive elements */
+/* Focus ring for interactive elements */
 a:focus-visible, button:focus-visible, .form-control:focus-visible, select:focus-visible {
-  outline: 3px solid var(--color-error);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px var(--color-focus-ring);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
-/* Buttons: bold, clear, with strong focus and hover */
+/* Buttons: clear, modern, with focus and hover */
 .btn, .btn--primary, .btn--secondary, .btn--outline {
-  border-width: 2px !important;
-  font-weight: var(--font-weight-bold) !important;
+  border-width: 2px;
+  font-weight: var(--font-weight-bold);
   letter-spacing: 0.02em;
+  border-radius: var(--radius-base);
 }
 
 .btn--primary {
-  background: var(--color-primary) !important;
-  color: var(--color-btn-primary-text) !important;
-  border-color: var(--color-primary-active) !important;
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  border-color: var(--color-primary-active);
 }
 
 .btn--primary:hover, .btn--primary:focus {
-  background: var(--color-primary-active) !important;
-  color: #fff !important;
-  border-color: var(--color-error) !important;
+  background: var(--color-primary-hover);
+  color: #fff;
+  border-color: var(--color-primary-active);
 }
 
 .btn--secondary {
-  background: var(--color-secondary) !important;
-  color: var(--color-primary) !important;
-  border-color: var(--color-primary) !important;
+  background: var(--color-secondary);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .btn--outline {
-  border-color: var(--color-primary) !important;
-  color: var(--color-primary) !important;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: transparent;
 }
 
-/* Status messages: bolder backgrounds and borders */
+/* Status messages: clear, but not jarring */
 .alert-success, .status--success {
-  background-color: #004c4c !important;
-  color: #fff !important;
-  border-color: #00bcbc !important;
+  background-color: rgba(var(--color-success-rgb), 0.12);
+  color: var(--color-success);
+  border-color: var(--color-success);
 }
 
 .alert-danger, .status--error {
-  background-color: #7c0a02 !important;
-  color: #fff !important;
-  border-color: #ff3950 !important;
+  background-color: rgba(var(--color-error-rgb), 0.12);
+  color: var(--color-error);
+  border-color: var(--color-error);
 }
 
 .alert-warning, .status--warning {
-  background-color: #7b3f00 !important;
-  color: #fff !important;
-  border-color: #ffb347 !important;
+  background-color: rgba(var(--color-warning-rgb), 0.12);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
 }
 
-/* Comparison cells: very strong color cues */
+/* Comparison cells: clear color cues, not overwhelming */
 .comparison-increase {
-  background-color: #004c4c !important;
-  color: #fff !important;
-  border-left: 4px solid #00bcbc !important;
+  background-color: rgba(var(--color-success-rgb), 0.15);
+  color: var(--color-success);
+  border-left: 3px solid var(--color-success);
 }
 .comparison-decrease {
-  background-color: #7c0a02 !important;
-  color: #fff !important;
-  border-left: 4px solid #ff3950 !important;
+  background-color: rgba(var(--color-error-rgb), 0.15);
+  color: var(--color-error);
+  border-left: 3px solid var(--color-error);
 }
 .comparison-neutral {
-  background-color: #222 !important;
-  color: #fff !important;
-  border-left: 4px solid #aaa !important;
+  background-color: rgba(var(--color-info-rgb), 0.10);
+  color: var(--color-info);
+  border-left: 3px solid var(--color-info);
 }
 
-/* Metric value: always high contrast */
+/* Metric value: readable, clean */
 .metric-value {
   font-family: var(--font-family-mono);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
-  color: var(--color-text) !important;
-  background: transparent !important;
+  color: var(--color-text);
+  background: transparent;
 }
 
-/* Extra: always show visible focus on all controls */
+/* Always show visible focus on controls */
 input:focus-visible, select:focus-visible, textarea:focus-visible {
-  outline: 3px solid var(--color-error);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px var(--color-focus-ring);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
-/* Leaflet map popup: high contrast */
+/* Leaflet popup: modern and readable */
 .leaflet-popup-content-wrapper {
-  background: #222 !important;
-  color: #fff !important;
-  border: 2px solid var(--color-primary) !important;
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-base);
 }
 
 /* Responsive: ensure table is readable */
