@@ -73,25 +73,23 @@ document.addEventListener('DOMContentLoaded', function() {
     autoLoadSample();
 });
 
+// --- Map ---
 function initializeMap() {
     map = L.map('map').setView([40.7128, -74.0060], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Wait for DOM and tab button to exist
-    document.addEventListener('DOMContentLoaded', function() {
-        const tabBtn = document.querySelector('button[data-bs-target="#dashboard"]');
-        if (tabBtn) {
-            tabBtn.addEventListener('shown.bs.tab', function () {
-                setTimeout(() => {
-                    map.invalidateSize();
-                }, 200);
-            });
-        }
-    });
+    // Fix for map in hidden tab
+    const tabBtn = document.querySelector('button[data-bs-target="#dashboard"]');
+    if (tabBtn) {
+        tabBtn.addEventListener('shown.bs.tab', function () {
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 200);
+        });
+    }
 }
-
 
 // --- Dropdowns ---
 function populateYearDropdowns() {
@@ -161,6 +159,7 @@ async function fetchACS(zip, year) {
 }
 
 async function fetchZBP(zip, year) {
+    // Simulated ZBP data
     return {
         'ZBP_ESTAB': Math.floor(Math.random() * 500) + 50,
         'ZBP_EMP': Math.floor(Math.random() * 2000) + 200,
@@ -352,6 +351,13 @@ function renderAllCharts(primaryData, compareData) {
 }
 
 // --- Chart helpers ---
+function sanitizeArray(arr) {
+    return arr.map(x => {
+        const val = Number(x);
+        return isNaN(val) ? 0 : val;
+    });
+}
+
 function renderBarChart({el, id, title, labels, primary, compare}) {
     const container = document.getElementById(el);
     const card = document.createElement('div');
@@ -367,13 +373,13 @@ function renderBarChart({el, id, title, labels, primary, compare}) {
     const ctx = document.getElementById(id).getContext('2d');
     const datasets = [{
         label: 'Primary Year',
-        data: primary.map(Number),
+        data: sanitizeArray(primary),
         backgroundColor: 'rgba(33,128,141,0.7)'
     }];
     if (compare) {
         datasets.push({
             label: 'Comparison Year',
-            data: compare.map(Number),
+            data: sanitizeArray(compare),
             backgroundColor: 'rgba(168,75,47,0.6)'
         });
     }
@@ -403,13 +409,13 @@ function renderPieChart({el, id, title, labels, primary, compare}) {
     const ctx = document.getElementById(id).getContext('2d');
     const datasets = [{
         label: 'Primary Year',
-        data: primary.map(Number),
+        data: sanitizeArray(primary),
         backgroundColor: ['#21808d', '#a84b2f', '#e6c229', '#7b3f00']
     }];
     if (compare) {
         datasets.push({
             label: 'Comparison Year',
-            data: compare.map(Number),
+            data: sanitizeArray(compare),
             backgroundColor: ['#7b3f00', '#e6c229', '#21808d', '#a84b2f'],
             borderWidth: 2,
             borderColor: '#fff'
@@ -440,7 +446,7 @@ function renderLineChart({el, id, title, labels, primary, compare}) {
     const ctx = document.getElementById(id).getContext('2d');
     const datasets = [{
         label: 'Primary Year',
-        data: primary.map(Number),
+        data: sanitizeArray(primary),
         borderColor: '#21808d',
         backgroundColor: 'rgba(33,128,141,0.2)',
         tension: 0.3
@@ -448,7 +454,7 @@ function renderLineChart({el, id, title, labels, primary, compare}) {
     if (compare) {
         datasets.push({
             label: 'Comparison Year',
-            data: compare.map(Number),
+            data: sanitizeArray(compare),
             borderColor: '#a84b2f',
             backgroundColor: 'rgba(168,75,47,0.2)',
             tension: 0.3
@@ -465,7 +471,7 @@ function renderLineChart({el, id, title, labels, primary, compare}) {
     });
 }
 
-// --- Table rendering (unchanged from previous) ---
+// --- Table rendering ---
 function renderTable(primaryData, compareData = null) {
     const tbody = document.getElementById('dataTableBody');
     tbody.innerHTML = '';
@@ -481,8 +487,10 @@ function renderTable(primaryData, compareData = null) {
     metrics.filter(m => m.category === "commuting").forEach(metric => tbody.appendChild(createMetricRow(metric, primaryData, compareData)));
 }
 function createCategoryRow(label) {
+    const compareYear = document.getElementById('compareYear').value;
+    const colspan = compareYear ? 3 : 2;
     const row = document.createElement('tr');
-    row.innerHTML = `<td colspan="3" class="metric-category">${label}</td>`;
+    row.innerHTML = `<td colspan="${colspan}" class="metric-category">${label}</td>`;
     return row;
 }
 function createMetricRow(metric, primaryData, compareData) {
