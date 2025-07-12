@@ -1,3 +1,4 @@
+
 // netlify/functions/census.js
 
 exports.handler = async (event) => {
@@ -20,7 +21,16 @@ exports.handler = async (event) => {
       };
     }
 
-    // Limit variables to 50 (Census API's documented max)
+    // Validate ZIP (5 digits)
+    if (!/^\d{5}$/.test(zip)) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'ZIP code must be a 5-digit number.' }),
+        headers: { 'Content-Type': 'application/json' }
+      };
+    }
+
+    // Limit variables to 50 (Census API max)
     const varList = vars.split(',');
     if (varList.length > 50) {
       return {
