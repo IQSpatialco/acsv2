@@ -1,6 +1,5 @@
 // app.js - Census Data Explorer: Categorized, Comparison-Ready Charts
 
-// 1. Metrics configuration (Detailed Table variables only)
 const metrics = [
     // Demographics & Households
     {code:"B23001_001E", label:"Population 16+", category: "demographics"},
@@ -12,7 +11,6 @@ const metrics = [
     {code:"B08201_004E", label:"Households with 2+ vehicles", category: "demographics"},
     {code:"B19013_001E", label:"Median household income", category: "demographics"},
     {code:"B19301_001E", label:"Per capita income", category: "demographics"},
-
     // Housing & Residential Investment
     {code:"B25001_001E", label:"Total housing units", category: "housing"},
     {code:"B25002_002E", label:"Occupied housing units", category: "housing"},
@@ -34,7 +32,6 @@ const metrics = [
     {code:"B25091_005E", label:"Median owner costs no mortgage", category: "housing"},
     {code:"B25070_007E", label:"Households rent >30% income", category: "housing"},
     {code:"B25091_009E", label:"Households owner cost >30% income", category: "housing"},
-
     // Employment & Workforce
     {code:"B23025_003E", label:"In labor force", category: "employment"},
     {code:"B23025_004E", label:"Employed", category: "employment"},
@@ -49,11 +46,9 @@ const metrics = [
     {code:"C24050_006E", label:"Natural resources/construction jobs", category: "employment"},
     {code:"C24050_007E", label:"Production/transportation jobs", category: "employment"},
     {code:"B17017_002E", label:"Households below poverty", category: "employment"},
-
     // Income & Poverty
     {code:"B19025_001E", label:"Mean household income", category: "income"},
     {code:"B20002_001E", label:"Median earnings (workers)", category: "income"},
-
     // Commuting & Transportation
     {code:"B08303_001E", label:"Mean travel time to work", category: "commuting"},
     {code:"B08301_001E", label:"Total workers (commuting)", category: "commuting"},
@@ -62,10 +57,8 @@ const metrics = [
     {code:"B08006_001E", label:"Workers by means of transportation", category: "commuting"}
 ];
 
-// --- Global variables ---
 let map, currentMarker, currentZip = '';
 
-// --- Initialization ---
 document.addEventListener('DOMContentLoaded', function() {
     initializeMap();
     setupEventListeners();
@@ -73,25 +66,19 @@ document.addEventListener('DOMContentLoaded', function() {
     autoLoadSample();
 });
 
-// --- Map ---
 function initializeMap() {
     map = L.map('map').setView([40.7128, -74.0060], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
-
-    // Fix for map in hidden tab
     const tabBtn = document.querySelector('button[data-bs-target="#dashboard"]');
     if (tabBtn) {
         tabBtn.addEventListener('shown.bs.tab', function () {
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 200);
+            setTimeout(() => { map.invalidateSize(); }, 200);
         });
     }
 }
 
-// --- Dropdowns ---
 function populateYearDropdowns() {
     const primarySelect = document.getElementById('primaryYear');
     const compareSelect = document.getElementById('compareYear');
@@ -113,7 +100,6 @@ function populateYearDropdowns() {
     primarySelect.value = '2023';
 }
 
-// --- Event listeners ---
 function setupEventListeners() {
     document.getElementById('loadBtn').addEventListener('click', handleLoad);
     document.getElementById('zipInput').addEventListener('keypress', function(e) {
@@ -122,19 +108,16 @@ function setupEventListeners() {
     document.getElementById('compareYear').addEventListener('change', updateComparisonHeader);
 }
 
-// --- Sample ZIP ---
 function autoLoadSample() {
     document.getElementById('zipInput').value = '10001';
     document.getElementById('primaryYear').value = '2023';
     handleLoad();
 }
 
-// --- Data Fetch ---
 async function fetchACS(zip, year) {
     const codes = metrics.map(m => m.code);
     const maxVars = 50;
     let allResults = {};
-
     for (let i = 0; i < codes.length; i += maxVars) {
         const varsBatch = codes.slice(i, i + maxVars);
         const varsString = varsBatch.join(',');
@@ -159,7 +142,6 @@ async function fetchACS(zip, year) {
 }
 
 async function fetchZBP(zip, year) {
-    // Simulated ZBP data
     return {
         'ZBP_ESTAB': Math.floor(Math.random() * 500) + 50,
         'ZBP_EMP': Math.floor(Math.random() * 2000) + 200,
@@ -168,19 +150,17 @@ async function fetchZBP(zip, year) {
 }
 
 // --- Format number ---
-// Add a special case for "Mean travel time to work" to show as minutes with one decimal.
+// Special case for mean travel time (B08303_001E): divide by 10 and show as minutes with 1 decimal.
 function formatNumber(value, metricCode = "") {
     if (value === null || value === undefined || value === '' || value === '-') return 'N/A';
     const num = parseFloat(value);
     if (isNaN(num)) return 'N/A';
-    // Special formatting for mean travel time (B08303_001E)
     if (metricCode === "B08303_001E") {
-        return num.toFixed(1) + " min";
+        return (num / 10).toFixed(1) + " min";
     }
     return num % 1 === 0 ? num.toLocaleString() : num.toFixed(1);
 }
 
-// --- Comparison header ---
 function updateComparisonHeader() {
     const compareYear = document.getElementById('compareYear').value;
     const comparisonHeader = document.getElementById('comparisonHeader');
@@ -192,7 +172,6 @@ function updateComparisonHeader() {
     }
 }
 
-// --- Summary cards ---
 function renderSummaryCards(data) {
     const summaryCards = [
         { label: "Total Housing Units", value: data["B25001_001E"] },
@@ -208,14 +187,11 @@ function renderSummaryCards(data) {
     ).join('');
 }
 
-// --- Render categorized charts with comparison support ---
 function renderAllCharts(primaryData, compareData) {
-    // Clear old charts
     ['demographics-charts','housing-charts','employment-charts','income-charts','commuting-charts','trend-charts'].forEach(id => {
         document.getElementById(id).innerHTML = '';
     });
 
-    // Demographics & Households
     renderPieChart({
         el: 'demographics-charts',
         id: 'occupancyPieChart',
@@ -241,7 +217,6 @@ function renderAllCharts(primaryData, compareData) {
         compare: compareData ? [compareData["B08201_002E"], compareData["B08201_004E"]] : null
     });
 
-    // Housing & Residential Investment
     renderBarChart({
         el: 'housing-charts',
         id: 'housingTypeBarChart',
@@ -270,7 +245,6 @@ function renderAllCharts(primaryData, compareData) {
         compare: compareData ? [compareData["B25002_002E"], compareData["B25002_003E"]] : null
     });
 
-    // Employment & Workforce
     renderBarChart({
         el: 'employment-charts',
         id: 'laborBarChart',
@@ -300,7 +274,6 @@ function renderAllCharts(primaryData, compareData) {
         ] : null
     });
 
-    // Income & Poverty
     renderBarChart({
         el: 'income-charts',
         id: 'incomeBarChart',
@@ -327,13 +300,11 @@ function renderAllCharts(primaryData, compareData) {
         compare: compareData ? [compareData["B17017_002E"]] : null
     });
 
-    // Commuting & Transportation
     renderBarChart({
         el: 'commuting-charts',
         id: 'commuteBarChart',
         title: 'Commuting Times',
         labels: ['Mean Travel Time', '<15 min', '60+ min'],
-        // Pass the metric code for mean travel time so it's formatted as minutes
         primary: [
             formatNumber(primaryData["B08303_001E"], "B08303_001E"),
             primaryData["B08303_002E"],
@@ -346,7 +317,6 @@ function renderAllCharts(primaryData, compareData) {
         ] : null
     });
 
-    // Comparative & Trend Analysis (example: Median Household Income)
     renderLineChart({
         el: 'trend-charts',
         id: 'incomeTrendChart',
@@ -357,10 +327,8 @@ function renderAllCharts(primaryData, compareData) {
     });
 }
 
-// --- Chart helpers ---
 function sanitizeArray(arr) {
     return arr.map(x => {
-        // If already formatted as a string (e.g., "33.9 min"), try to parse the number part
         if (typeof x === "string" && x.includes("min")) {
             const n = parseFloat(x);
             return isNaN(n) ? 0 : n;
@@ -483,7 +451,6 @@ function renderLineChart({el, id, title, labels, primary, compare}) {
     });
 }
 
-// --- Table rendering ---
 function renderTable(primaryData, compareData = null) {
     const tbody = document.getElementById('dataTableBody');
     tbody.innerHTML = '';
@@ -540,7 +507,6 @@ function createMetricRow(metric, primaryData, compareData) {
     return row;
 }
 
-// --- Main load handler ---
 async function handleLoad() {
     const zipInput = document.getElementById('zipInput');
     const primaryYear = document.getElementById('primaryYear').value;
@@ -595,7 +561,6 @@ async function handleLoad() {
     }
 }
 
-// --- Map update ---
 async function updateMap(zip) {
     try {
         const response = await fetch(`https://api.zippopotam.us/us/${zip}`);
@@ -619,7 +584,6 @@ async function updateMap(zip) {
     }
 }
 
-// --- Status messages ---
 function showMessage(message, type) {
     const statusMessages = document.getElementById('statusMessages');
     const alertClass = type === 'success' ? 'alert-success' :
