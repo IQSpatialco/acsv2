@@ -172,11 +172,9 @@ function formatNumber(value) {
     if (value === null || value === undefined || value === '' || value === '-') return 'N/A';
     const num = parseFloat(value);
     if (isNaN(num)) return 'N/A';
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    if (num % 1 === 0) return num.toLocaleString();
-    return num.toFixed(1);
+    return num % 1 === 0 ? num.toLocaleString() : num.toFixed(1);
 }
+
 
 // --- Comparison header ---
 function updateComparisonHeader() {
