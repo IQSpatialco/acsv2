@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
-    <!-- Chart.js for graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -134,25 +133,7 @@
                     </div>
                     <!-- Charts Tab -->
                     <div class="tab-pane fade" id="charts" role="tabpanel" aria-labelledby="charts-tab">
-                        <div class="row mb-3" id="dashboard-charts">
-                            <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card__header"><strong>Housing Types</strong></div>
-                                    <div class="card__body">
-                                        <canvas id="housingBarChart" height="200"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card__header"><strong>Occupancy Breakdown</strong></div>
-                                    <div class="card__body">
-                                        <canvas id="occupancyPieChart" height="200"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- You can add more chart cards here as needed -->
+                        <div id="all-charts" class="row"></div>
                     </div>
                 </div>
             </div>
