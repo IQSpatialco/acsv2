@@ -20,8 +20,24 @@ exports.handler = async (event) => {
       };
     }
 
-    const url = `https://api.census.gov/data/${year}/acs/acs5?get=${vars}&for=zip%20code%20tabulation%20area:${zip}&key=${apiKey}`;
+    // Limit variables to 50 (Census API's documented max)
+    const varList = vars.split(',');
+    if (varList.length > 50) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Too many variables requested. Limit is 50 per request.' }),
+        headers: { 'Content-Type': 'application/json' }
+      };
+    }
+
+    // Encode variables for URL safety
+    const encodedVars = encodeURIComponent(vars);
+
+    const url = `https://api.census.gov/data/${year}/acs/acs5?get=${encodedVars}&for=zip%20code%20tabulation%20area:${zip}&key=${apiKey}`;
     const resp = await fetch(url);
+
+    const contentType = resp.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json');
 
     if (!resp.ok) {
       const errorText = await resp.text();
@@ -32,7 +48,8 @@ exports.handler = async (event) => {
       };
     }
 
-    const data = await resp.json();
+    // Only parse as JSON if response is JSON
+    const data = isJson ? await resp.json() : await resp.text();
     return {
       statusCode: 200,
       body: JSON.stringify(data),
