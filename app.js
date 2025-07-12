@@ -1,4 +1,4 @@
-// app.js - Census Data Explorer (Detailed Table Variables Only, Batched Requests)
+// app.js - Census Data Explorer with Charts and Summary Cards
 
 // 1. Metrics configuration (Detailed Table variables only)
 const metrics = [
@@ -21,8 +21,8 @@ const metrics = [
     {code:"B25077_001E", label:"Median value owner-occupied"},
     {code:"B25018_001E", label:"Median rooms per unit"},
     {code:"B25058_001E", label:"Median contract rent"},
-    {code:"B25091_002E", label:"Median owner costs w/ mortgage"}, // FIXED
-    {code:"B25091_005E", label:"Median owner costs no mortgage"}, // FIXED
+    {code:"B25091_002E", label:"Median owner costs w/ mortgage"},
+    {code:"B25091_005E", label:"Median owner costs no mortgage"},
     {code:"B25081_002E", label:"Households with mortgage"},
     {code:"B25081_003E", label:"Households without mortgage"},
     {code:"B25070_007E", label:"Households rent >30% income"},
@@ -54,6 +54,9 @@ const metrics = [
     {code:"B08201_002E", label:"Households with no vehicle"},
     {code:"B08201_004E", label:"Households with 2+ vehicles"}
 ];
+
+// Chart.js chart instances
+let housingChartInstance, occupancyChartInstance;
 
 // 2. Global variables
 let map;
@@ -176,7 +179,69 @@ function updateComparisonHeader() {
     }
 }
 
-// 12. Render data table
+// 12. Render summary cards
+function renderSummaryCards(data) {
+    const summaryCards = [
+        { label: "Total Housing Units", value: data["B25001_001E"] },
+        { label: "Median Household Income", value: data["B19013_001E"] },
+        { label: "Median Home Value", value: data["B25077_001E"] },
+        { label: "Unemployment", value: data["B23025_005E"] }
+    ];
+    document.getElementById('summary-cards').innerHTML = summaryCards.map(card =>
+        `<div class="summary-card">
+            <div class="summary-value">${formatNumber(card.value)}</div>
+            <div class="summary-label">${card.label}</div>
+        </div>`
+    ).join('');
+}
+
+// 13. Render housing bar chart
+function renderHousingBarChart(data) {
+    const ctx = document.getElementById('housingBarChart').getContext('2d');
+    if (housingChartInstance) housingChartInstance.destroy();
+    housingChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [
+                "1-unit detached", "1-unit attached", "2 units", "3-4 units",
+                "5-9 units", "10-19 units", "20+ units", "Mobile homes"
+            ],
+            datasets: [{
+                label: 'Units',
+                data: [
+                    data["B25024_002E"], data["B25024_003E"], data["B25024_004E"],
+                    data["B25024_005E"], data["B25024_006E"], data["B25024_007E"],
+                    data["B25024_008E"], data["B25024_010E"]
+                ].map(Number),
+                backgroundColor: 'rgba(33,128,141,0.7)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+// 14. Render occupancy pie chart
+function renderOccupancyPieChart(data) {
+    const ctx = document.getElementById('occupancyPieChart').getContext('2d');
+    if (occupancyChartInstance) occupancyChartInstance.destroy();
+    occupancyChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ["Owner-Occupied", "Renter-Occupied"],
+            datasets: [{
+                data: [data["B25003_002E"], data["B25003_003E"]].map(Number),
+                backgroundColor: ['#21808d', '#a84b2f']
+            }]
+        },
+        options: { responsive: true }
+    });
+}
+
+// 15. Render data table
 function renderTable(primaryData, compareData = null) {
     const tbody = document.getElementById('dataTableBody');
     tbody.innerHTML = '';
@@ -227,7 +292,7 @@ function createMetricRow(metric, primaryData, compareData) {
     return row;
 }
 
-// 13. Handle load button click
+// 16. Handle load button click
 async function handleLoad() {
     const zipInput = document.getElementById('zipInput');
     const primaryYear = document.getElementById('primaryYear').value;
@@ -265,6 +330,9 @@ async function handleLoad() {
                 showMessage('Could not load comparison data', 'warning');
             }
         }
+        renderSummaryCards(primaryData);
+        renderHousingBarChart(primaryData);
+        renderOccupancyPieChart(primaryData);
         renderTable(primaryData, compareData);
         updateComparisonHeader();
         document.getElementById('zipDisplayInfo').textContent = `ZIP Code: ${zip}`;
@@ -280,7 +348,7 @@ async function handleLoad() {
     }
 }
 
-// 14. Update map with ZIP location
+// 17. Update map with ZIP location
 async function updateMap(zip) {
     try {
         const response = await fetch(`https://api.zippopotam.us/us/${zip}`);
@@ -304,7 +372,7 @@ async function updateMap(zip) {
     }
 }
 
-// 15. Show status message
+// 18. Show status message
 function showMessage(message, type) {
     const statusMessages = document.getElementById('statusMessages');
     const alertClass = type === 'success' ? 'alert-success' :
