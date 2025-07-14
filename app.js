@@ -1,4 +1,4 @@
-// app.js - Census Data Explorer: Categorized, Comparison-Ready Charts
+// app.js - PlaceTrends Census Explorer: Categorized, Comparison-Ready Charts
 
 const metrics = [
     // Demographics & Households
@@ -50,11 +50,9 @@ const metrics = [
     {code:"B17017_002E", label:"Households below poverty", category: "employment"},
 
     // Income & Poverty
-    // {code:"B19025_001E", label:"Mean household income", category: "income"}, // REMOVED
     {code:"B20002_001E", label:"Median earnings (workers)", category: "income"},
 
     // Commuting & Transportation
-    // {code:"B08303_001E", label:"Mean travel time to work", category: "commuting"}, // REMOVED
     {code:"B08301_001E", label:"Total workers (commuting)", category: "commuting"},
     {code:"B08303_002E", label:"Workers commute <15 min", category: "commuting"},
     {code:"B08303_010E", label:"Workers commute 60+ min", category: "commuting"},
@@ -146,6 +144,7 @@ async function fetchACS(zip, year) {
 }
 
 async function fetchZBP(zip, year) {
+    // Demo only: random data
     return {
         'ZBP_ESTAB': Math.floor(Math.random() * 500) + 50,
         'ZBP_EMP': Math.floor(Math.random() * 2000) + 200,
@@ -179,7 +178,7 @@ function renderSummaryCards(data) {
         { label: "Unemployment", value: data["B23025_005E"] }
     ];
     document.getElementById('summary-cards').innerHTML = summaryCards.map(card =>
-        `<div class="summary-card">
+        `<div class="summary-card" style="border-left: 5px solid #00B8A9;">
             <div class="summary-value">${formatNumber(card.value)}</div>
             <div class="summary-label">${card.label}</div>
         </div>`
@@ -333,6 +332,14 @@ function sanitizeArray(arr) {
     });
 }
 
+// --- PlaceTrends.com Chart Color Palette ---
+const PT_PRIMARY = 'rgba(26,35,126,0.85)';   // #1A237E
+const PT_SECONDARY = 'rgba(0,184,169,0.7)';  // #00B8A9
+const PT_ACCENT = 'rgba(255,111,60,0.7)';    // #FF6F3C
+const PT_BG1 = 'rgba(26,35,126,0.15)';
+const PT_BG2 = 'rgba(0,184,169,0.15)';
+const PT_BG3 = 'rgba(255,111,60,0.15)';
+
 function renderBarChart({el, id, title, labels, primary, compare}) {
     const container = document.getElementById(el);
     const card = document.createElement('div');
@@ -349,13 +356,13 @@ function renderBarChart({el, id, title, labels, primary, compare}) {
     const datasets = [{
         label: 'Primary Year',
         data: sanitizeArray(primary),
-        backgroundColor: 'rgba(33,128,141,0.7)'
+        backgroundColor: PT_PRIMARY
     }];
     if (compare) {
         datasets.push({
             label: 'Comparison Year',
             data: sanitizeArray(compare),
-            backgroundColor: 'rgba(168,75,47,0.6)'
+            backgroundColor: PT_SECONDARY
         });
     }
     new Chart(ctx, {
@@ -385,13 +392,13 @@ function renderPieChart({el, id, title, labels, primary, compare}) {
     const datasets = [{
         label: 'Primary Year',
         data: sanitizeArray(primary),
-        backgroundColor: ['#21808d', '#a84b2f', '#e6c229', '#7b3f00']
+        backgroundColor: [PT_PRIMARY, PT_SECONDARY, PT_ACCENT, PT_BG1]
     }];
     if (compare) {
         datasets.push({
             label: 'Comparison Year',
             data: sanitizeArray(compare),
-            backgroundColor: ['#7b3f00', '#e6c229', '#21808d', '#a84b2f'],
+            backgroundColor: [PT_ACCENT, PT_BG2, PT_PRIMARY, PT_SECONDARY],
             borderWidth: 2,
             borderColor: '#fff'
         });
@@ -422,16 +429,16 @@ function renderLineChart({el, id, title, labels, primary, compare}) {
     const datasets = [{
         label: 'Primary Year',
         data: sanitizeArray(primary),
-        borderColor: '#21808d',
-        backgroundColor: 'rgba(33,128,141,0.2)',
+        borderColor: PT_PRIMARY,
+        backgroundColor: PT_BG1,
         tension: 0.3
     }];
     if (compare) {
         datasets.push({
             label: 'Comparison Year',
             data: sanitizeArray(compare),
-            borderColor: '#a84b2f',
-            backgroundColor: 'rgba(168,75,47,0.2)',
+            borderColor: PT_SECONDARY,
+            backgroundColor: PT_BG2,
             tension: 0.3
         });
     }
@@ -564,8 +571,9 @@ async function updateMap(zip) {
         const lat = parseFloat(data.places[0].latitude);
         const lon = parseFloat(data.places[0].longitude);
         if (currentMarker) map.removeLayer(currentMarker);
+        // PlaceTrends accent teal for marker
         currentMarker = L.circleMarker([lat, lon], {
-            color: '#21808d', fillColor: '#21808d', fillOpacity: 0.5, radius: 8
+            color: '#00B8A9', fillColor: '#00B8A9', fillOpacity: 0.6, radius: 9
         }).addTo(map);
         currentMarker.bindPopup(`
             <strong>ZIP Code: ${zip}</strong><br>
